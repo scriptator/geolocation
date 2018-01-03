@@ -18,14 +18,21 @@ import android.view.MenuItem
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
+import at.ac.tuwien.mns.mnsgeolocation.dto.GeolocationRequestParams
 import at.ac.tuwien.mns.mnsgeolocation.fragments.DetailFragment
 import at.ac.tuwien.mns.mnsgeolocation.service.GPSLocationService
+import at.ac.tuwien.mns.mnsgeolocation.service.MLSLocationService
+import at.ac.tuwien.mns.mnsgeolocation.service.ServiceFactory
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_measurement_list.*
 
 class MeasurementListActivity : AppCompatActivity(), DetailFragment.OnFragmentInteractionListener {
 
     private val listItems: ArrayList<String> = ArrayList()
     private var listAdapter: ArrayAdapter<String>? = null
+
+    private var mlsLocationService: MLSLocationService = ServiceFactory.getMlsLocationService()
 
     companion object {
         private val LOCATION_PERMISSION_CODE = 1
@@ -59,6 +66,21 @@ class MeasurementListActivity : AppCompatActivity(), DetailFragment.OnFragmentIn
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
         }
+
+        // demo for mlsLocationService
+        val params = GeolocationRequestParams()
+        params.considerIp = true
+        params.fallbacks.ipf = true
+        mlsLocationService.geolocate(params, "b4e52805e5534deb9d5cdb7df1000f36")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnError{
+                    err -> print(err)
+                }
+                .subscribe{
+                    response -> print(response)
+                }
+
 
         val listView = findViewById<ListView>(R.id.listView) as ListView
         this.listAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, android.R.id.text1, listItems)
