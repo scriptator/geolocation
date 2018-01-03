@@ -75,6 +75,7 @@ class MeasurementListActivity : AppCompatActivity(), DetailFragment.OnFragmentIn
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnError{
+                    // TODO handle different types of error (no internet, location not found, internal server error)
                     err -> print(err)
                 }
                 .subscribe{
