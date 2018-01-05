@@ -100,7 +100,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="295dp"
+            android:layout_marginTop="303dp"
             android:minHeight="48dp"
             android:paddingTop="8dp"
             android:gravity="center_vertical"
@@ -128,7 +128,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="343dp"
+            android:layout_marginTop="351dp"
             android:minHeight="48dp"
             android:gravity="center_vertical"
             android:descendantFocusability="blocksDescendants">
@@ -155,7 +155,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="391dp"
+            android:layout_marginTop="399dp"
             android:minHeight="48dp"
             android:gravity="center_vertical"
             android:descendantFocusability="blocksDescendants">
@@ -185,7 +185,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_height="2dp"
-            android:layout_marginTop="439dp"
+            android:layout_marginTop="447dp"
             android:paddingTop="8dp"/>
 
         <TextView
@@ -195,7 +195,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="443dp"
+            android:layout_marginTop="451dp"
             android:paddingTop="8dp"
             android:textColor="@color/colorAccent"
             android:text="@string/gps"
@@ -207,7 +207,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="468dp"
+            android:layout_marginTop="484dp"
             android:minHeight="48dp"
             android:paddingTop="8dp"
             android:gravity="center_vertical"
@@ -235,7 +235,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="516dp"
+            android:layout_marginTop="532dp"
             android:minHeight="48dp"
             android:paddingBottom="8dp"
             android:gravity="center_vertical"
