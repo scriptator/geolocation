@@ -26,7 +26,7 @@ import android.content.ServiceConnection
 import android.location.Location
 
 
-class MeasurementListActivity : AppCompatActivity(), DetailFragment.OnFragmentInteractionListener {
+class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentInteractionListener {
 
     private var managerServiceIntent: Intent? = null
     private var managerService: ManagerService? = null
@@ -43,8 +43,8 @@ class MeasurementListActivity : AppCompatActivity(), DetailFragment.OnFragmentIn
             println("msg type: " + type.toString())
             when {
                 ManagerService.NOTIFICATION_TYPE_LOCATION.equals(type) -> processLocationMsg(intent?.extras?.getParcelable<Location>(ManagerService.CONTENT))
-                ManagerService.NOTIFICATION_TYPE_MLS_REQUEST.equals(type) -> processMLSRequestMsg(intent?.extras?.getParcelable<GeolocationRequestParams>(ManagerService.CONTENT))
-                ManagerService.NOTIFICATION_TYPE_PERM_FAILED.equals(type) -> PermissionUtil.requestRequiredPermissions(this@MeasurementListActivity)
+                ManagerService.NOTIFICATION_TYPE_MLS_REQUEST.equals(type) -> conductMLSLocationRequest(intent?.extras?.getParcelable<GeolocationRequestParams>(ManagerService.CONTENT))
+                ManagerService.NOTIFICATION_TYPE_PERM_FAILED.equals(type) -> PermissionUtil.requestRequiredPermissions(this@MeasurementActivity)
             }
         }
     }
@@ -59,23 +59,6 @@ class MeasurementListActivity : AppCompatActivity(), DetailFragment.OnFragmentIn
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
         }
-
-        // demo for mlsLocationService
-        val params = GeolocationRequestParams()
-        params.considerIp = true
-        params.fallbacks.ipf = true
-        mlsLocationService.geolocate(params, "b4e52805e5534deb9d5cdb7df1000f36")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnError {
-                    // TODO handle different types of error (no internet, location not found, internal server error)
-                    err ->
-                    print(err)
-                }
-                .subscribe { response ->
-                    print(response)
-                }
-
 
         val listView = findViewById<ListView>(R.id.listView) as ListView
         this.listAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, android.R.id.text1, listItems)
@@ -160,9 +143,34 @@ class MeasurementListActivity : AppCompatActivity(), DetailFragment.OnFragmentIn
         }
     }
 
-    private fun processMLSRequestMsg(mlsRequest: GeolocationRequestParams?) {
+    private fun conductMLSLocationRequest(mlsRequest: GeolocationRequestParams?) {
+        if (mlsRequest == null) {
+            showToast("Scanning wifi or cell towers failed", Toast.LENGTH_LONG)
+            return
+        }
         println(mlsRequest.toString())
-        // TODO for mls stuff
+
+        // demo for mlsLocationService
+        mlsRequest.considerIp = true
+        mlsRequest.fallbacks.ipf = true
+        mlsRequest.fallbacks.lacf = true
+
+        // TODO secure API key
+        mlsLocationService.geolocate(mlsRequest, "b4e52805e5534deb9d5cdb7df1000f36")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnError {
+                    // TODO handle different types of error (no internet, location not found, internal server error)
+                    err ->
+                    print(err)
+                }
+                .subscribe { response ->
+                    if (response.fallback == "ipf") {
+                        showToast("WIFI and Cell Towers not known, fallback to GeoIP", Toast.LENGTH_LONG)
+                    } else if (response.fallback == "lacf") {
+                        showToast("WIFI and Cell Towers not known, fallback to LAC-based lookup", Toast.LENGTH_LONG)
+                    }
+                }
     }
 
 

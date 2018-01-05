@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="at.ac.tuwien.mns.mnsgeolocation.MeasurementListActivity"
+    tools:context="at.ac.tuwien.mns.mnsgeolocation.MeasurementActivity"
     tools:showIn="@layout/activity_measurement_list">
 
     <ListView
