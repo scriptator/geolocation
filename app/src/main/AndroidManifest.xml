@@ -26,6 +26,7 @@
 
         <service android:name="at.ac.tuwien.mns.mnsgeolocation.service.GPSLocationService" />
         <service android:name="at.ac.tuwien.mns.mnsgeolocation.service.MLSScannerService" />
+        <service android:name="at.ac.tuwien.mns.mnsgeolocation.service.ManagerService" />
     </application>
 
 </manifest>
