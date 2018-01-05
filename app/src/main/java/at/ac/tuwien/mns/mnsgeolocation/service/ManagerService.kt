@@ -18,8 +18,7 @@ import at.ac.tuwien.mns.mnsgeolocation.util.PermissionUtil
  */
 class ManagerService : Service() {
 
-    var gpsIntent : Intent? = null
-    var mlsScannerIntent : Intent? = null
+    var gpsIntent: Intent? = null
 
     inner class ManagerServiceBinder : Binder() {
         fun getService(): ManagerService {
@@ -46,6 +45,10 @@ class ManagerService : Service() {
             startGPSIntent()
             startMLSScannerIntent()
         }
+    }
+
+    private val mlsScannerStarter = Runnable {
+        startMLSScannerIntent()
     }
 
     private val receiverGPS = object : BroadcastReceiver() {
@@ -78,7 +81,7 @@ class ManagerService : Service() {
     override fun onDestroy() {
         unregisterReceiver(receiverGPS)
         unregisterReceiver(receiverMLS)
-        stopService(mlsScannerIntent)
+        stopService(gpsIntent)
         super.onDestroy()
     }
 
@@ -88,6 +91,10 @@ class ManagerService : Service() {
 
     fun tryStartingServices() {
         Handler().post(serviceStarter)
+    }
+
+    fun startMLSScanner() {
+        Handler().post(mlsScannerStarter)
     }
 
     private fun publishResults(notifType: String, content: Parcelable?) {
@@ -105,9 +112,7 @@ class ManagerService : Service() {
     }
 
     private fun startMLSScannerIntent() {
-        if (mlsScannerIntent == null) {
-            mlsScannerIntent = Intent(this, MLSScannerService::class.java)
-        }
+        val mlsScannerIntent = Intent(this, MLSScannerService::class.java)
         startService(mlsScannerIntent)
     }
 }
