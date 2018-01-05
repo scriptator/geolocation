@@ -27,13 +27,21 @@ import android.util.Log
 import android.view.View
 import at.ac.tuwien.mns.mnsgeolocation.dto.Measurement
 import at.ac.tuwien.mns.mnsgeolocation.util.DisplayUtil
+import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
+import java.io.File
+import java.util.concurrent.TimeUnit
 
 
 class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentInteractionListener {
 
     private val LOG_TAG = javaClass.canonicalName
 
+    private var measurmentTimeout: Disposable? = null
+    private var measuring = false
     private var currentMeasurement: Measurement? = null
+
+    private var lastGPSLocation: Location? = null
 
     private var managerServiceIntent: Intent? = null
     private var managerService: ManagerService? = null
@@ -143,17 +151,30 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         DisplayUtil.alphaAnimation(progressOverlay, View.VISIBLE, 0.4f, 150)
 
         this.currentMeasurement = Measurement()
+        this.measuring = true
+
+        // start service to get cell towers and wifi access points
+        managerService!!.startMLSScanner()
 
         this.fab.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
-        this.fab.setOnClickListener {this.abortMeasurement()}
+        this.fab.setOnClickListener {
+            Log.i(LOG_TAG, "Aborting measurement")
+            this.endMeasurement()
+        }
 
-        // TODO is this ok like that?
-        this.managerService?.tryStartingServices()
+        measurmentTimeout = Observable.timer(20, TimeUnit.SECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+            Log.i(LOG_TAG, "Aborting measurement due to time out")
+            showToast("Aborting measurement due to timeout", Toast.LENGTH_LONG)
+            this.endMeasurement()
+        }
     }
 
-    private fun abortMeasurement() {
-        Log.i(LOG_TAG, "Aborting measurement")
+    private fun endMeasurement() {
         DisplayUtil.alphaAnimation(progressOverlay, View.GONE, 0f, 150)
+        this.measuring = false
+        this.measurmentTimeout?.dispose()
 
         this.fab.setImageResource(android.R.drawable.ic_input_add)
         this.fab.setOnClickListener {this.startMeasurement()}
@@ -163,20 +184,23 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         if (location == null) {
             showToast("Last location unknown", Toast.LENGTH_LONG)
         } else {
-            Log.i(LOG_TAG, "GPS location check done")
-            this.currentMeasurement?.gpsLocation = location
+            Log.i(LOG_TAG, "GPS location update received")
+            this.lastGPSLocation = location
             this.checkMeasurementCompleted()
         }
     }
 
     private fun checkMeasurementCompleted() {
-        if (currentMeasurement?.gpsLocation != null
+        if (measuring
+                && lastGPSLocation != null
                 && currentMeasurement?.mlsRequestParams != null
                 && currentMeasurement?.mlsResponse != null) {
 
-            DisplayUtil.alphaAnimation(progressOverlay, View.GONE, 0f, 150)
-            this.fab.setImageResource(android.R.drawable.ic_input_add)
-            this.fab.setOnClickListener {this.startMeasurement()}
+            // reset icons, remove loading overlay, ...
+            this.endMeasurement()
+
+            // use the last known GPS location for the measurement
+            currentMeasurement?.gpsLocation = lastGPSLocation
 
             // TODO refactor list to display measurements and not a string
             val msg = "Lat: " + currentMeasurement?.gpsLocation?.latitude + ", Lon: " + currentMeasurement?.gpsLocation?.longitude
