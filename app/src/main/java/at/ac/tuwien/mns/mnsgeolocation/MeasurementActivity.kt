@@ -27,6 +27,7 @@ import android.location.Location
 import android.util.Log
 import android.view.View
 import at.ac.tuwien.mns.mnsgeolocation.dto.Measurement
+import at.ac.tuwien.mns.mnsgeolocation.dto.MeasurementDao
 import at.ac.tuwien.mns.mnsgeolocation.util.DisplayUtil
 import at.ac.tuwien.mns.mnsgeolocation.util.DistanceUtils
 import io.reactivex.Observable
@@ -41,6 +42,8 @@ import java.util.concurrent.TimeUnit
 class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentInteractionListener {
 
     private val LOG_TAG = javaClass.canonicalName
+
+    private var measurementDao: MeasurementDao? = null
 
     private var measurmentTimeout: Disposable? = null
     private var measuring = false
@@ -85,6 +88,15 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         listView.adapter = listAdapter
 
         startManagerService()
+
+        // get the DAO
+        val daoSession = (application as Application).getDaoSession();
+        measurementDao = daoSession.measurementDao
+
+        // query all notes, sorted a-z by their text
+        val measurementsQuery = measurementDao!!.queryBuilder().orderAsc(MeasurementDao.Properties.Id).build();
+        val measurements: List<Measurement> = measurementsQuery.list()
+        println(measurements)
     }
 
     override fun onStart() {
@@ -208,6 +220,7 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
             this.endMeasurement()
 
             val m = currentMeasurement!!
+            m.id = this.measurementDao?.insert(m)
 
             // use the last known GPS location for the measurement
             m.gpsLocation = lastGPSLocation

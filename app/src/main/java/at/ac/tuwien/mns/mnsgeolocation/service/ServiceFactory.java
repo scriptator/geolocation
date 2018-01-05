@@ -1,9 +1,12 @@
 package at.ac.tuwien.mns.mnsgeolocation.service;
 
+import android.content.Context;
+
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import org.jetbrains.annotations.NotNull;
 
+import at.ac.tuwien.mns.mnsgeolocation.Application;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
