@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import at.ac.tuwien.mns.mnsgeolocation.R
 import at.ac.tuwien.mns.mnsgeolocation.dto.Measurement
+import at.ac.tuwien.mns.mnsgeolocation.util.DistanceUtils
 import org.w3c.dom.Text
 import java.text.SimpleDateFormat
 
@@ -49,10 +50,14 @@ class DetailsFragment : Fragment() {
         val glon = measurement?.gpsLocation?.longitude
         val mlat = measurement?.mlsResponse?.location?.lat
         val mlon = measurement?.mlsResponse?.location?.lng
-        //val distance = DistanceUtils.haversineDistance(glat, glon, mlat, mlon)
+
+        var dist = 0.0
+        if (glat != null && glon != null && mlat != null && mlon != null) {
+            dist = DistanceUtils.haversineDistance(glat, glon, mlat, mlon)
+        }
 
         time.text = dateFormat.format(measurement?.timestamp)
-        distance.text = "14"
+        distance.text = StringBuilder().append(dist).append("m")
         mlsPos.text = StringBuilder().append(mlat).append("°N\n").append(mlon).append("°E")
         var b = StringBuilder()
         for (tower in measurement?.mlsRequestParams!!.cellTowers) {
