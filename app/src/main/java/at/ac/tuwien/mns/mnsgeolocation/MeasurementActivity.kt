@@ -161,7 +161,7 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         // start service to get cell towers and wifi access points
         managerService!!.startMLSScanner()
 
-        this.fab.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
+        this.fab.setImageResource(R.drawable.ic_close_black_24dp)
         this.fab.setOnClickListener {
             Log.i(LOG_TAG, "Aborting measurement")
             this.endMeasurement()
@@ -182,8 +182,8 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         this.measuring = false
         this.measurmentTimeout?.dispose()
 
-        this.fab.setImageResource(android.R.drawable.ic_input_add)
-        this.fab.setOnClickListener { this.startMeasurement() }
+        this.fab.setImageResource(R.drawable.ic_add_black_24dp)
+        this.fab.setOnClickListener {this.startMeasurement()}
     }
 
     private fun processGPSLocationMsg(location: Location?) {
