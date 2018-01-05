@@ -1,7 +1,6 @@
 package at.ac.tuwien.mns.mnsgeolocation
 
 import android.Manifest
-import android.app.Fragment
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -22,7 +21,9 @@ import at.ac.tuwien.mns.mnsgeolocation.dto.GeolocationRequestParams
 import at.ac.tuwien.mns.mnsgeolocation.fragments.DetailFragment
 import at.ac.tuwien.mns.mnsgeolocation.service.GPSLocationService
 import at.ac.tuwien.mns.mnsgeolocation.service.MLSLocationService
+import at.ac.tuwien.mns.mnsgeolocation.service.MLSScannerService
 import at.ac.tuwien.mns.mnsgeolocation.service.ServiceFactory
+import at.ac.tuwien.mns.mnsgeolocation.util.PermissionUtil
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_measurement_list.*
@@ -38,7 +39,7 @@ class MeasurementListActivity : AppCompatActivity(), DetailFragment.OnFragmentIn
         private val LOCATION_PERMISSION_CODE = 1
     }
 
-    private val receiver = object : BroadcastReceiver() {
+    private val receiverGPS = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val bundle = intent?.extras
             if (bundle != null) {
@@ -57,6 +58,17 @@ class MeasurementListActivity : AppCompatActivity(), DetailFragment.OnFragmentIn
         }
     }
 
+    private val receiverMLS = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val bundle = intent?.extras
+            if (bundle != null) {
+                val mlsRequest = bundle.getParcelable<GeolocationRequestParams>(MLSScannerService.MLS_REQUEST)
+                println(mlsRequest.toString())
+            }
+        }
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -74,12 +86,13 @@ class MeasurementListActivity : AppCompatActivity(), DetailFragment.OnFragmentIn
         mlsLocationService.geolocate(params, "b4e52805e5534deb9d5cdb7df1000f36")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError{
+                .doOnError {
                     // TODO handle different types of error (no internet, location not found, internal server error)
-                    err -> print(err)
+                    err ->
+                    print(err)
                 }
-                .subscribe{
-                    response -> print(response)
+                .subscribe { response ->
+                    print(response)
                 }
 
 
@@ -88,18 +101,19 @@ class MeasurementListActivity : AppCompatActivity(), DetailFragment.OnFragmentIn
         listView.adapter = listAdapter
 
         var startIntent = true
-        if (!GPSLocationService.locationPermissionGranted(this)) {
+        if (!PermissionUtil.locationPermissionGranted(this)) { // TODO wifi
             ActivityCompat.requestPermissions(this,
-                    Array(1) { Manifest.permission.ACCESS_FINE_LOCATION },
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_WIFI_STATE),
                     LOCATION_PERMISSION_CODE)
             startIntent = false // start on callback not here
         }
-        if (!GPSLocationService.gpsEnabled(this)) {
+        if (!PermissionUtil.gpsEnabled(this)) {
             showToast("Please activate your GPS and restart the app !", Toast.LENGTH_LONG)
             startIntent = false
         }
         if (startIntent) {
             startGPSIntent()
+            startMLSScannerIntent()
         }
     }
 
@@ -122,13 +136,15 @@ class MeasurementListActivity : AppCompatActivity(), DetailFragment.OnFragmentIn
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (LOCATION_PERMISSION_CODE == requestCode) {
+            // TODO wifi
             var failed = grantResults.isEmpty()
-                    || grantResults.size != 1
+                    || grantResults.size != 2
                     || PermissionChecker.PERMISSION_GRANTED != grantResults[0]
             if (failed) {
                 showToast("Location permission required!", Toast.LENGTH_LONG)
             } else {
                 startGPSIntent()
+                startMLSScannerIntent()
             }
         }
     }
@@ -139,12 +155,14 @@ class MeasurementListActivity : AppCompatActivity(), DetailFragment.OnFragmentIn
 
     override fun onResume() {
         super.onResume()
-        registerReceiver(receiver, IntentFilter(GPSLocationService.NOTIFICATION))
+        registerReceiver(receiverGPS, IntentFilter(GPSLocationService.NOTIFICATION))
+        registerReceiver(receiverMLS, IntentFilter(MLSScannerService.NOTIFICATION))
     }
 
     override fun onPause() {
         super.onPause()
-        unregisterReceiver(receiver)
+        unregisterReceiver(receiverGPS)
+        unregisterReceiver(receiverMLS)
     }
 
     private fun showToast(text: String, duration: Int) {
@@ -154,5 +172,10 @@ class MeasurementListActivity : AppCompatActivity(), DetailFragment.OnFragmentIn
     private fun startGPSIntent() {
         val gpsIntent = Intent(this, GPSLocationService::class.java)
         startService(gpsIntent)
+    }
+
+    private fun startMLSScannerIntent() {
+        val mlsScannerIntent = Intent(this, MLSScannerService::class.java)
+        startService(mlsScannerIntent)
     }
 }
