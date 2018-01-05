@@ -25,12 +25,15 @@ import android.content.ServiceConnection
 import android.location.Location
 import android.util.Log
 import android.view.View
+import at.ac.tuwien.mns.mnsgeolocation.dto.Measurement
 import at.ac.tuwien.mns.mnsgeolocation.util.DisplayUtil
 
 
 class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentInteractionListener {
 
     private val LOG_TAG = javaClass.canonicalName
+
+    private var currentMeasurement: Measurement? = null
 
     private var managerServiceIntent: Intent? = null
     private var managerService: ManagerService? = null
@@ -98,7 +101,8 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         if (PermissionUtil.requestPermissionsResultFailed(requestCode, permissions, grantResults)) {
             showToast("Location permission required!", Toast.LENGTH_LONG)
         } else {
-            managerService?.tryStartingServices()
+            // TODO does it make sense to start the services already here or only when the plus button is pressed?
+            //managerService?.tryStartingServices()
         }
     }
 
@@ -138,8 +142,13 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         Log.i(LOG_TAG, "Starting measurement")
         DisplayUtil.alphaAnimation(progressOverlay, View.VISIBLE, 0.4f, 150)
 
+        this.currentMeasurement = Measurement()
+
         this.fab.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
         this.fab.setOnClickListener {this.abortMeasurement()}
+
+        // TODO is this ok like that?
+        this.managerService?.tryStartingServices()
     }
 
     private fun abortMeasurement() {
@@ -150,24 +159,33 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         this.fab.setOnClickListener {this.startMeasurement()}
     }
 
-    private fun completeMeasurement() {
-        Log.i(LOG_TAG, "Measurement complete, adding to list.")
-        DisplayUtil.alphaAnimation(progressOverlay, View.GONE, 0f, 150)
-
-        this.fab.setImageResource(android.R.drawable.ic_input_add)
-        this.fab.setOnClickListener {this.startMeasurement()}
-    }
-
     private fun processGPSLocationMsg(location: Location?) {
         if (location == null) {
             showToast("Last location unknown", Toast.LENGTH_LONG)
         } else {
-            val msg = "Lat: " + location.latitude + ", Lon: " + location.longitude
+            Log.i(LOG_TAG, "GPS location check done")
+            this.currentMeasurement?.gpsLocation = location
+            this.checkMeasurementCompleted()
+        }
+    }
+
+    private fun checkMeasurementCompleted() {
+        if (currentMeasurement?.gpsLocation != null
+                && currentMeasurement?.mlsRequestParams != null
+                && currentMeasurement?.mlsResponse != null) {
+
+            DisplayUtil.alphaAnimation(progressOverlay, View.GONE, 0f, 150)
+            this.fab.setImageResource(android.R.drawable.ic_input_add)
+            this.fab.setOnClickListener {this.startMeasurement()}
+
+            // TODO refactor list to display measurements and not a string
+            val msg = "Lat: " + currentMeasurement?.gpsLocation?.latitude + ", Lon: " + currentMeasurement?.gpsLocation?.longitude
             showToast(msg, Toast.LENGTH_LONG)
             listItems.add(msg)
             if (listAdapter != null) {
                 listAdapter?.notifyDataSetChanged()
             }
+            Log.i(LOG_TAG, "Measurement complete: " + currentMeasurement)
         }
     }
 
@@ -178,19 +196,22 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         }
         println(mlsRequest.toString())
 
-        // demo for mlsLocationService
+        // save request params
+        this.currentMeasurement?.mlsRequestParams = mlsRequest
+
         mlsRequest.considerIp = true
         mlsRequest.fallbacks.ipf = true
         mlsRequest.fallbacks.lacf = true
 
         // TODO secure API key
+        Log.d(LOG_TAG, "Starting MLS geolocation request")
         mlsLocationService.geolocate(mlsRequest, "b4e52805e5534deb9d5cdb7df1000f36")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnError {
                     // TODO handle different types of error (no internet, location not found, internal server error)
                     err ->
-                    print(err)
+                    Log.e(LOG_TAG, err.message, err)
                 }
                 .subscribe { response ->
                     if (response.fallback == "ipf") {
@@ -198,6 +219,10 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
                     } else if (response.fallback == "lacf") {
                         showToast("WIFI and Cell Towers not known, fallback to LAC-based lookup", Toast.LENGTH_LONG)
                     }
+                    // save response
+                    Log.i(LOG_TAG, "MLS Request done")
+                    this.currentMeasurement?.mlsResponse = response
+                    this.checkMeasurementCompleted()
                 }
     }
 
