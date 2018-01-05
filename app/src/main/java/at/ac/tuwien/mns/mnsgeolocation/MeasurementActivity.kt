@@ -1,5 +1,6 @@
 package at.ac.tuwien.mns.mnsgeolocation
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -27,9 +28,13 @@ import android.util.Log
 import android.view.View
 import at.ac.tuwien.mns.mnsgeolocation.dto.Measurement
 import at.ac.tuwien.mns.mnsgeolocation.util.DisplayUtil
+import at.ac.tuwien.mns.mnsgeolocation.util.DistanceUtils
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import java.io.File
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -160,6 +165,7 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         this.fab.setOnClickListener {
             Log.i(LOG_TAG, "Aborting measurement")
             this.endMeasurement()
+            showToast("Measurement aborted", Toast.LENGTH_SHORT)
         }
 
         measurmentTimeout = Observable.timer(20, TimeUnit.SECONDS)
@@ -190,26 +196,103 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         }
     }
 
+    @SuppressLint("SimpleDateFormat")
     private fun checkMeasurementCompleted() {
         if (measuring
                 && lastGPSLocation != null
-                && currentMeasurement?.mlsRequestParams != null
-                && currentMeasurement?.mlsResponse != null) {
+                && currentMeasurement != null
+                && currentMeasurement!!.mlsRequestParams != null
+                && currentMeasurement!!.mlsResponse != null) {
 
             // reset icons, remove loading overlay, ...
             this.endMeasurement()
 
             // use the last known GPS location for the measurement
-            currentMeasurement?.gpsLocation = lastGPSLocation
+            currentMeasurement!!.gpsLocation = lastGPSLocation
 
             // TODO refactor list to display measurements and not a string
-            val msg = "Lat: " + currentMeasurement?.gpsLocation?.latitude + ", Lon: " + currentMeasurement?.gpsLocation?.longitude
+            val msg = "Lat: " + currentMeasurement!!.gpsLocation?.latitude + ", Lon: " + currentMeasurement!!.gpsLocation?.longitude
             showToast(msg, Toast.LENGTH_LONG)
             listItems.add(msg)
             if (listAdapter != null) {
                 listAdapter?.notifyDataSetChanged()
             }
             Log.i(LOG_TAG, "Measurement complete: " + currentMeasurement)
+
+            // ----- email sending ------
+            // TODO move email sending to correct place
+            val cal = Calendar.getInstance()
+            cal.timeInMillis = currentMeasurement!!.timestamp
+            val localDate = SimpleDateFormat.getDateTimeInstance().format(cal.time)
+
+            val filename = "measurement_" + SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(cal.time) + ".txt"
+            val outputDir = applicationContext.cacheDir // context being the Activity pointer
+            val outputFile = File(outputDir, filename)
+            if (!outputFile.exists()) {
+                try {
+                    outputFile.createNewFile()
+                } catch (e: IOException) {
+                    Log.e(LOG_TAG, "Could not create temp file for email attachment.")
+                }
+            }
+
+            val glat = currentMeasurement!!.gpsLocation!!.latitude
+            val glon = currentMeasurement!!.gpsLocation!!.longitude
+            val mlat = currentMeasurement!!.mlsResponse!!.location!!.lat!!
+            val mlon = currentMeasurement!!.mlsResponse!!.location!!.lng!!
+            val distance = DistanceUtils.haversineDistance(glat, glon, mlat, mlon)
+
+            val b = StringBuilder()
+            b.append("GPS vs MLS measurement from ")
+                    .append(localDate)
+                    .append(":\n\n")
+            b.append("GPS:\n")
+                    .append("  Location: ")
+                    .append(glat)
+                    .append("°N / ")
+                    .append(glon)
+                    .append("°E\n")
+                    .append("  Accuracy: ")
+                    .append(currentMeasurement!!.gpsLocation?.accuracy)
+                    .append(" m\n\n")
+            b.append("MLS:\n")
+                    .append("  Location: ")
+                    .append(mlat)
+                    .append("°N / ")
+                    .append(mlon)
+                    .append("°E\n")
+                    .append("  Accuracy: ")
+                    .append(currentMeasurement!!.mlsResponse?.accuracy)
+                    .append(" m\n")
+                    .append("  Parameters:\n")
+                    .append("    Cell Towers:\n")
+            for (tower in currentMeasurement!!.mlsRequestParams!!.cellTowers) {
+                b.append("      - ")
+                b.append(tower)
+                b.append("\n")
+            }
+            b.append("    WIFI Access Points:\n")
+            for (ap in currentMeasurement!!.mlsRequestParams!!.wifiAccessPoints) {
+                b.append("      - ")
+                b.append(ap)
+                b.append("\n")
+            }
+            b.append("\nDistance: ")
+                    .append(distance)
+                    .append(" m")
+
+            outputFile.writeText(b.toString())
+
+            val emailIntent = Intent(Intent.ACTION_SEND)
+            emailIntent.type = "text/plain"
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "MNSMeasurement at " + localDate)
+            emailIntent.putExtra(Intent.EXTRA_TEXT, "Hello!\n\nThis email holds your measurement from " + localDate + " as an attachment.")
+            // set the attachment, share via own file provider
+            emailIntent.putExtra(Intent.EXTRA_STREAM, OwnFileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID, outputFile))
+            // give temporary permission to the folder containing the email attachment
+            emailIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            startActivity(emailIntent)
         }
     }
 
@@ -234,17 +317,20 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         mlsLocationService.geolocate(mlsRequest, "b4e52805e5534deb9d5cdb7df1000f36")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ response -> run {
-                    if (response.fallback == "ipf") {
-                        showToast("WIFI and Cell Towers not known, fallback to GeoIP", Toast.LENGTH_LONG)
-                    } else if (response.fallback == "lacf") {
-                        showToast("WIFI and Cell Towers not known, fallback to LAC-based lookup", Toast.LENGTH_LONG)
+                .subscribe({ response ->
+                    run {
+                        if (response.fallback == "ipf") {
+                            showToast("WIFI and Cell Towers not known, fallback to GeoIP", Toast.LENGTH_LONG)
+                        } else if (response.fallback == "lacf") {
+                            showToast("WIFI and Cell Towers not known, fallback to LAC-based lookup", Toast.LENGTH_LONG)
+                        }
+                        // save response
+                        Log.i(LOG_TAG, "MLS Request done")
+                        this.currentMeasurement?.mlsResponse = response
+                        this.checkMeasurementCompleted()
                     }
-                    // save response
-                    Log.i(LOG_TAG, "MLS Request done")
-                    this.currentMeasurement?.mlsResponse = response
-                    this.checkMeasurementCompleted()
-                }}, { err -> run {
+                }, { err ->
+                    run {
                         val msg = "Querying MLS geolocation service resulted in an error"
                         showToast(msg + ": " + err.message, Toast.LENGTH_LONG)
                         Log.e(LOG_TAG, msg, err)

@@ -27,6 +27,16 @@
         <service android:name="at.ac.tuwien.mns.mnsgeolocation.service.GPSLocationService" />
         <service android:name="at.ac.tuwien.mns.mnsgeolocation.service.MLSScannerService" />
         <service android:name="at.ac.tuwien.mns.mnsgeolocation.service.ManagerService" />
+
+        <provider
+            android:name="at.ac.tuwien.mns.mnsgeolocation.service.OwnFileProvider"
+            android:authorities="${applicationId}"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
     </application>
 
 </manifest>
