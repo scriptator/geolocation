@@ -12,11 +12,13 @@ class GeolocationResponse() : Parcelable {
     var fallback: String? = null
 
     constructor(parcel: Parcel) : this() {
+        location = parcel.readParcelable(LatLng::class.java.classLoader)
         accuracy = parcel.readValue(Float::class.java.classLoader) as? Float
         fallback = parcel.readString()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeParcelable(location, flags)
         parcel.writeValue(accuracy)
         parcel.writeString(fallback)
     }

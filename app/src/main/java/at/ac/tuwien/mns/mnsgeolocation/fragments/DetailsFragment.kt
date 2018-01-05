@@ -46,15 +46,12 @@ class DetailsFragment : Fragment() {
         val gpsPos = view.findViewById<TextView>(R.id.gpsPosValue)
         val accuracy = view.findViewById<TextView>(R.id.accuracyValue)
 
-        val glat = measurement?.gpsLocation?.latitude
-        val glon = measurement?.gpsLocation?.longitude
-        val mlat = measurement?.mlsResponse?.location?.lat
-        val mlon = measurement?.mlsResponse?.location?.lng
+        val glat = measurement!!.gpsLocation!!.latitude
+        val glon = measurement!!.gpsLocation!!.longitude
+        val mlat = measurement!!.mlsResponse!!.location!!.lat!!
+        val mlon = measurement!!.mlsResponse!!.location!!.lng!!
 
-        var dist = 0.0
-        if (glat != null && glon != null && mlat != null && mlon != null) {
-            dist = DistanceUtils.haversineDistance(glat, glon, mlat, mlon)
-        }
+        val dist = DistanceUtils.haversineDistance(glat, glon, mlat, mlon)
 
         time.text = dateFormat.format(measurement?.timestamp)
         distance.text = StringBuilder().append(dist).append("m")

@@ -10,16 +10,11 @@
         android:layout_height="wrap_content"
         tools:context="at.ac.tuwien.mns.mnsgeolocation.fragments.DetailsFragment">
 
-        <com.google.android.gms.maps.MapView
-            android:id="@+id/mapView"
-            android:layout_width="match_parent"
-            android:layout_height="170dp" />
-
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="170dp"
+            android:layout_marginTop="0dp"
             android:minHeight="48dp"
             android:paddingTop="8dp"
             android:gravity="center_vertical"
@@ -47,7 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="218dp"
+            android:layout_marginTop="48dp"
             android:minHeight="48dp"
             android:paddingTop="8dp"
             android:gravity="center_vertical"
@@ -78,7 +73,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_height="2dp"
-            android:layout_marginTop="266dp"
+            android:layout_marginTop="96dp"
             android:paddingTop="8dp"/>
 
         <TextView
@@ -88,7 +83,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="270dp"
+            android:layout_marginTop="100dp"
             android:paddingTop="8dp"
             android:textColor="@color/colorPrimary"
             android:text="@string/mls"
@@ -100,7 +95,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="303dp"
+            android:layout_marginTop="133dp"
             android:minHeight="48dp"
             android:paddingTop="8dp"
             android:gravity="center_vertical"
@@ -128,7 +123,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="351dp"
+            android:layout_marginTop="181dp"
             android:minHeight="48dp"
             android:gravity="center_vertical"
             android:descendantFocusability="blocksDescendants">
@@ -155,7 +150,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="399dp"
+            android:layout_marginTop="229dp"
             android:minHeight="48dp"
             android:gravity="center_vertical"
             android:descendantFocusability="blocksDescendants">
@@ -185,7 +180,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_height="2dp"
-            android:layout_marginTop="447dp"
+            android:layout_marginTop="277dp"
             android:paddingTop="8dp"/>
 
         <TextView
@@ -195,7 +190,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="451dp"
+            android:layout_marginTop="281dp"
             android:paddingTop="8dp"
             android:textColor="@color/colorAccent"
             android:text="@string/gps"
@@ -207,7 +202,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="484dp"
+            android:layout_marginTop="314dp"
             android:minHeight="48dp"
             android:paddingTop="8dp"
             android:gravity="center_vertical"
@@ -235,7 +230,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="532dp"
+            android:layout_marginTop="362dp"
             android:minHeight="48dp"
             android:paddingBottom="8dp"
             android:gravity="center_vertical"
