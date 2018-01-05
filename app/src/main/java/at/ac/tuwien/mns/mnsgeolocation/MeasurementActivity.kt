@@ -165,10 +165,10 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         measurmentTimeout = Observable.timer(20, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-            Log.i(LOG_TAG, "Aborting measurement due to time out")
-            showToast("Aborting measurement due to timeout", Toast.LENGTH_LONG)
-            this.endMeasurement()
-        }
+                    Log.i(LOG_TAG, "Aborting measurement due to time out")
+                    showToast("Aborting measurement due to timeout", Toast.LENGTH_LONG)
+                    this.endMeasurement()
+                }
     }
 
     private fun endMeasurement() {
@@ -177,7 +177,7 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         this.measurmentTimeout?.dispose()
 
         this.fab.setImageResource(android.R.drawable.ic_input_add)
-        this.fab.setOnClickListener {this.startMeasurement()}
+        this.fab.setOnClickListener { this.startMeasurement() }
     }
 
     private fun processGPSLocationMsg(location: Location?) {
@@ -215,7 +215,9 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
 
     private fun conductMLSLocationRequest(mlsRequest: GeolocationRequestParams?) {
         if (mlsRequest == null) {
+            Log.e(LOG_TAG, "Scanning wifi or cell towers failed")
             showToast("Scanning wifi or cell towers failed", Toast.LENGTH_LONG)
+            endMeasurement()
             return
         }
         println(mlsRequest.toString())
@@ -232,12 +234,7 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         mlsLocationService.geolocate(mlsRequest, "b4e52805e5534deb9d5cdb7df1000f36")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError {
-                    // TODO handle different types of error (no internet, location not found, internal server error)
-                    err ->
-                    Log.e(LOG_TAG, err.message, err)
-                }
-                .subscribe { response ->
+                .subscribe({ response -> run {
                     if (response.fallback == "ipf") {
                         showToast("WIFI and Cell Towers not known, fallback to GeoIP", Toast.LENGTH_LONG)
                     } else if (response.fallback == "lacf") {
@@ -247,7 +244,13 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
                     Log.i(LOG_TAG, "MLS Request done")
                     this.currentMeasurement?.mlsResponse = response
                     this.checkMeasurementCompleted()
-                }
+                }}, { err -> run {
+                        val msg = "Querying MLS geolocation service resulted in an error"
+                        showToast(msg + ": " + err.message, Toast.LENGTH_LONG)
+                        Log.e(LOG_TAG, msg, err)
+                        this.endMeasurement()
+                    }
+                })
     }
 
 
