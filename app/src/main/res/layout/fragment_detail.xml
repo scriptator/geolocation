@@ -3,262 +3,262 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="at.ac.tuwien.mns.mnsgeolocation.fragments.DetailFragment">
+    tools:context="at.ac.tuwien.mns.mnsgeolocation.fragments.DetailsFragment">
 
-<android.support.constraint.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    tools:context="at.ac.tuwien.mns.mnsgeolocation.fragments.DetailFragment">
-
-    <com.google.android.gms.maps.MapView
-        android:id="@+id/mapView"
-        android:layout_width="match_parent"
-        android:layout_height="170dp" />
-
-    <RelativeLayout
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="170dp"
-        android:minHeight="48dp"
-        android:paddingTop="8dp"
-        android:gravity="center_vertical"
-        android:descendantFocusability="blocksDescendants">
+        tools:context="at.ac.tuwien.mns.mnsgeolocation.fragments.DetailsFragment">
 
-        <ImageView android:id="@+id/timeIcon"
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="170dp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="170dp"
+            android:minHeight="48dp"
+            android:paddingTop="8dp"
+            android:gravity="center_vertical"
+            android:descendantFocusability="blocksDescendants">
+
+            <ImageView android:id="@+id/timeIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:src="@drawable/ic_access_time_black_24dp"
+                android:tint="@color/colorPrimary"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView android:id="@+id/timeValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="72dp"
+                android:paddingEnd="16dp"
+                android:fontFamily="roboto-regular"
+                android:textSize="16sp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="218dp"
+            android:minHeight="48dp"
+            android:paddingTop="8dp"
+            android:gravity="center_vertical"
+            android:descendantFocusability="blocksDescendants">
+
+            <ImageView android:id="@+id/distanceIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:src="@drawable/ic_compare_arrows_black_24dp"
+                android:tint="@color/colorPrimary"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView android:id="@+id/distanceValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="72dp"
+                android:paddingEnd="16dp"
+                android:fontFamily="roboto-regular"
+                android:textSize="16sp" />
+
+        </RelativeLayout>
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="266dp"
+            android:paddingTop="8dp"/>
+
+        <TextView
+            android:id="@+id/mls"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="16dp"
-            android:src="@drawable/ic_access_time_black_24dp"
-            android:tint="@color/colorPrimary"
-            tools:ignore="RtlSymmetry" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="270dp"
+            android:paddingTop="8dp"
+            android:textColor="@color/colorPrimary"
+            android:text="@string/mls"
+            android:textSize="16sp"
+            android:fontFamily="roboto"
+            android:textStyle="bold" />
 
-        <TextView android:id="@+id/timeValue"
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="295dp"
+            android:minHeight="48dp"
+            android:paddingTop="8dp"
+            android:gravity="center_vertical"
+            android:descendantFocusability="blocksDescendants">
+
+            <ImageView android:id="@+id/mlsPosIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:src="@drawable/ic_gps_fixed_black_24dp"
+                android:tint="@color/colorPrimary"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView android:id="@+id/mlsPosValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="72dp"
+                android:paddingEnd="16dp"
+                android:fontFamily="roboto-regular"
+                android:textSize="16sp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="343dp"
+            android:minHeight="48dp"
+            android:gravity="center_vertical"
+            android:descendantFocusability="blocksDescendants">
+
+            <ImageView android:id="@+id/cellIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:src="@drawable/ic_settings_input_antenna_black_24dp"
+                android:tint="@color/colorPrimary"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView android:id="@+id/cellValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="72dp"
+                android:paddingEnd="16dp"
+                android:fontFamily="roboto-regular"
+                android:textSize="16sp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="391dp"
+            android:minHeight="48dp"
+            android:gravity="center_vertical"
+            android:descendantFocusability="blocksDescendants">
+
+            <ImageView android:id="@+id/wifiIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:src="@drawable/ic_wifi_black_24dp"
+                android:tint="@color/colorPrimary"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView android:id="@+id/wifiValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="72dp"
+                android:paddingEnd="16dp"
+                android:fontFamily="roboto-regular"
+                android:textSize="16sp" />
+
+        </RelativeLayout>
+
+        <View
+            android:id="@+id/divider2"
+            android:layout_width="match_parent"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="439dp"
+            android:paddingTop="8dp"/>
+
+        <TextView
+            android:id="@+id/gps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="72dp"
-            android:paddingEnd="16dp"
-            android:fontFamily="roboto-regular"
-            android:textSize="16sp" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="443dp"
+            android:paddingTop="8dp"
+            android:textColor="@color/colorAccent"
+            android:text="@string/gps"
+            android:textSize="16sp"
+            android:fontFamily="roboto"
+            android:textStyle="bold" />
 
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="218dp"
-        android:minHeight="48dp"
-        android:paddingTop="8dp"
-        android:gravity="center_vertical"
-        android:descendantFocusability="blocksDescendants">
-
-        <ImageView android:id="@+id/distanceIcon"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="16dp"
-            android:src="@drawable/ic_compare_arrows_black_24dp"
-            android:tint="@color/colorPrimary"
-            tools:ignore="RtlSymmetry" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="468dp"
+            android:minHeight="48dp"
+            android:paddingTop="8dp"
+            android:gravity="center_vertical"
+            android:descendantFocusability="blocksDescendants">
 
-        <TextView android:id="@+id/distanceValue"
-            android:layout_width="wrap_content"
+            <ImageView android:id="@+id/gpsPosIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:src="@drawable/ic_gps_fixed_black_24dp"
+                android:tint="@color/colorAccent"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView android:id="@+id/gpsPosValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="72dp"
+                android:paddingEnd="16dp"
+                android:fontFamily="roboto-regular"
+                android:textSize="16sp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="72dp"
-            android:paddingEnd="16dp"
-            android:fontFamily="roboto-regular"
-            android:textSize="16sp" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="516dp"
+            android:minHeight="48dp"
+            android:paddingBottom="8dp"
+            android:gravity="center_vertical"
+            android:descendantFocusability="blocksDescendants">
 
-    </RelativeLayout>
+            <ImageView android:id="@+id/accuracyIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:src="@drawable/ic_error_black_24dp"
+                android:tint="@color/colorAccent"
+                tools:ignore="RtlSymmetry" />
 
-    <View
-        android:id="@+id/divider"
-        android:layout_width="match_parent"
-        android:background="@android:color/darker_gray"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_height="2dp"
-        android:layout_marginTop="266dp"
-        android:paddingTop="8dp"/>
+            <TextView android:id="@+id/accuracyValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="72dp"
+                android:paddingEnd="16dp"
+                android:fontFamily="roboto-regular"
+                android:textSize="16sp" />
 
-    <TextView
-        android:id="@+id/mls"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="270dp"
-        android:paddingTop="8dp"
-        android:textColor="@color/colorPrimary"
-        android:text="@string/mls"
-        android:textSize="16sp"
-        android:fontFamily="roboto"
-        android:textStyle="bold" />
+        </RelativeLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="295dp"
-        android:minHeight="48dp"
-        android:paddingTop="8dp"
-        android:gravity="center_vertical"
-        android:descendantFocusability="blocksDescendants">
-
-        <ImageView android:id="@+id/mlsPosIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="16dp"
-            android:src="@drawable/ic_gps_fixed_black_24dp"
-            android:tint="@color/colorPrimary"
-            tools:ignore="RtlSymmetry" />
-
-        <TextView android:id="@+id/mlsPosValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="72dp"
-            android:paddingEnd="16dp"
-            android:fontFamily="roboto-regular"
-            android:textSize="16sp" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="343dp"
-        android:minHeight="48dp"
-        android:gravity="center_vertical"
-        android:descendantFocusability="blocksDescendants">
-
-        <ImageView android:id="@+id/cellIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="16dp"
-            android:src="@drawable/ic_settings_input_antenna_black_24dp"
-            android:tint="@color/colorPrimary"
-            tools:ignore="RtlSymmetry" />
-
-        <TextView android:id="@+id/cellValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="72dp"
-            android:paddingEnd="16dp"
-            android:fontFamily="roboto-regular"
-            android:textSize="16sp" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="391dp"
-        android:minHeight="48dp"
-        android:gravity="center_vertical"
-        android:descendantFocusability="blocksDescendants">
-
-        <ImageView android:id="@+id/wifiIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="16dp"
-            android:src="@drawable/ic_wifi_black_24dp"
-            android:tint="@color/colorPrimary"
-            tools:ignore="RtlSymmetry" />
-
-        <TextView android:id="@+id/wifiValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="72dp"
-            android:paddingEnd="16dp"
-            android:fontFamily="roboto-regular"
-            android:textSize="16sp" />
-
-    </RelativeLayout>
-
-    <View
-        android:id="@+id/divider2"
-        android:layout_width="match_parent"
-        android:background="@android:color/darker_gray"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_height="2dp"
-        android:layout_marginTop="439dp"
-        android:paddingTop="8dp"/>
-
-    <TextView
-        android:id="@+id/gps"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="443dp"
-        android:paddingTop="8dp"
-        android:textColor="@color/colorAccent"
-        android:text="@string/gps"
-        android:textSize="16sp"
-        android:fontFamily="roboto"
-        android:textStyle="bold" />
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="468dp"
-        android:minHeight="48dp"
-        android:paddingTop="8dp"
-        android:gravity="center_vertical"
-        android:descendantFocusability="blocksDescendants">
-
-        <ImageView android:id="@+id/gpsPosIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="16dp"
-            android:src="@drawable/ic_gps_fixed_black_24dp"
-            android:tint="@color/colorAccent"
-            tools:ignore="RtlSymmetry" />
-
-        <TextView android:id="@+id/gpsPosValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="72dp"
-            android:paddingEnd="16dp"
-            android:fontFamily="roboto-regular"
-            android:textSize="16sp" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="516dp"
-        android:minHeight="48dp"
-        android:paddingBottom="8dp"
-        android:gravity="center_vertical"
-        android:descendantFocusability="blocksDescendants">
-
-        <ImageView android:id="@+id/accuracyIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="16dp"
-            android:src="@drawable/ic_error_black_24dp"
-            android:tint="@color/colorAccent"
-            tools:ignore="RtlSymmetry" />
-
-        <TextView android:id="@+id/accuracyValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="72dp"
-            android:paddingEnd="16dp"
-            android:fontFamily="roboto-regular"
-            android:textSize="16sp" />
-
-    </RelativeLayout>
-
-</android.support.constraint.ConstraintLayout>
+    </android.support.constraint.ConstraintLayout>
 
 </ScrollView>

@@ -10,11 +10,10 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
 import at.ac.tuwien.mns.mnsgeolocation.dto.GeolocationRequestParams
-import at.ac.tuwien.mns.mnsgeolocation.fragments.DetailFragment
+import at.ac.tuwien.mns.mnsgeolocation.fragments.DetailsFragment
 import at.ac.tuwien.mns.mnsgeolocation.service.*
 import at.ac.tuwien.mns.mnsgeolocation.util.PermissionUtil
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -26,6 +25,8 @@ import android.content.ServiceConnection
 import android.location.Location
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
+import at.ac.tuwien.mns.mnsgeolocation.adapters.MeasurementListAdapter
 import at.ac.tuwien.mns.mnsgeolocation.dto.Measurement
 import at.ac.tuwien.mns.mnsgeolocation.util.DisplayUtil
 import at.ac.tuwien.mns.mnsgeolocation.util.DistanceUtils
@@ -38,7 +39,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentInteractionListener {
+class MeasurementActivity : AppCompatActivity(), AdapterView.OnItemClickListener  {
 
     private val LOG_TAG = javaClass.canonicalName
 
@@ -54,8 +55,8 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
 
     var progressOverlay: View? = null
 
-    private val listItems: ArrayList<String> = ArrayList()
-    private var listAdapter: ArrayAdapter<String>? = null
+    private val listItems: ArrayList<Measurement> = ArrayList()
+    private var listAdapter: MeasurementListAdapter? = null
 
     private var mlsLocationService: MLSLocationService = ServiceFactory.getMlsLocationService()
 
@@ -81,8 +82,9 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         this.progressOverlay = findViewById(R.id.progress_overlay)
 
         val listView = findViewById<ListView>(R.id.listView) as ListView
-        this.listAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, android.R.id.text1, listItems)
+        this.listAdapter = MeasurementListAdapter(listView.context, listItems)
         listView.adapter = listAdapter
+        listView.onItemClickListener = this
 
         startManagerService()
     }
@@ -119,10 +121,6 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         }
     }
 
-    override fun onFragmentInteraction(uri: Uri) {
-        //TODO
-    }
-
     override fun onResume() {
         super.onResume()
         registerReceiver(receiverManager, IntentFilter(ManagerService.NOTIFICATION))
@@ -141,6 +139,12 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
     override fun onDestroy() {
         super.onDestroy()
         stopService(managerServiceIntent)
+    }
+
+    override fun onItemClick(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
+        val intent = Intent(parent?.context, DetailsActivity::class.java)
+        intent.putExtra(DetailsFragment.ARG_MEASUREMENT, parent?.getItemAtPosition(pos) as Measurement)
+        startActivity(intent)
     }
 
     private fun showToast(text: String, duration: Int) {
@@ -215,7 +219,7 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
             // TODO refactor list to display measurements and not a string
             val msg = "Lat: " + m.gpsLocation?.latitude + ", Lon: " + m.gpsLocation?.longitude
             showToast(msg, Toast.LENGTH_LONG)
-            listItems.add(msg)
+            listItems.add(m)
             if (listAdapter != null) {
                 listAdapter?.notifyDataSetChanged()
             }
