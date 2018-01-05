@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -24,13 +23,20 @@ import android.content.ComponentName
 import android.os.IBinder
 import android.content.ServiceConnection
 import android.location.Location
+import android.util.Log
+import android.view.View
+import at.ac.tuwien.mns.mnsgeolocation.util.DisplayUtil
 
 
 class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentInteractionListener {
 
+    private val LOG_TAG = javaClass.canonicalName
+
     private var managerServiceIntent: Intent? = null
     private var managerService: ManagerService? = null
     private var mBound = false
+
+    var progressOverlay: View? = null
 
     private val listItems: ArrayList<String> = ArrayList()
     private var listAdapter: ArrayAdapter<String>? = null
@@ -42,7 +48,7 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
             val type = intent?.extras?.getString(ManagerService.NOTIFICATION_TYPE)
             println("msg type: " + type.toString())
             when {
-                ManagerService.NOTIFICATION_TYPE_LOCATION.equals(type) -> processLocationMsg(intent?.extras?.getParcelable<Location>(ManagerService.CONTENT))
+                ManagerService.NOTIFICATION_TYPE_LOCATION.equals(type) -> processGPSLocationMsg(intent?.extras?.getParcelable<Location>(ManagerService.CONTENT))
                 ManagerService.NOTIFICATION_TYPE_MLS_REQUEST.equals(type) -> conductMLSLocationRequest(intent?.extras?.getParcelable<GeolocationRequestParams>(ManagerService.CONTENT))
                 ManagerService.NOTIFICATION_TYPE_PERM_FAILED.equals(type) -> PermissionUtil.requestRequiredPermissions(this@MeasurementActivity)
             }
@@ -55,10 +61,8 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
 
         setContentView(R.layout.activity_measurement_list)
         setSupportActionBar(toolbar)
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
+        fab.setOnClickListener { this.startMeasurement() }
+        this.progressOverlay = findViewById(R.id.progress_overlay)
 
         val listView = findViewById<ListView>(R.id.listView) as ListView
         this.listAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, android.R.id.text1, listItems)
@@ -130,7 +134,31 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         startService(managerServiceIntent)
     }
 
-    private fun processLocationMsg(location: Location?) {
+    private fun startMeasurement() {
+        Log.i(LOG_TAG, "Starting measurement")
+        DisplayUtil.alphaAnimation(progressOverlay, View.VISIBLE, 0.4f, 150)
+
+        this.fab.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
+        this.fab.setOnClickListener {this.abortMeasurement()}
+    }
+
+    private fun abortMeasurement() {
+        Log.i(LOG_TAG, "Aborting measurement")
+        DisplayUtil.alphaAnimation(progressOverlay, View.GONE, 0f, 150)
+
+        this.fab.setImageResource(android.R.drawable.ic_input_add)
+        this.fab.setOnClickListener {this.startMeasurement()}
+    }
+
+    private fun completeMeasurement() {
+        Log.i(LOG_TAG, "Measurement complete, adding to list.")
+        DisplayUtil.alphaAnimation(progressOverlay, View.GONE, 0f, 150)
+
+        this.fab.setImageResource(android.R.drawable.ic_input_add)
+        this.fab.setOnClickListener {this.startMeasurement()}
+    }
+
+    private fun processGPSLocationMsg(location: Location?) {
         if (location == null) {
             showToast("Last location unknown", Toast.LENGTH_LONG)
         } else {

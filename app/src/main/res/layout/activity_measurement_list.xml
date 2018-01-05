@@ -22,6 +22,9 @@
 
     <include layout="@layout/content_measurement_list" />
 
+    <!-- Progress bar overlay - displayed while measurement is conducted -->
+    <include layout="@layout/progress_overlay"/>
+
     <fragment
         android:id="@+id/detail"
         class="at.ac.tuwien.mns.mnsgeolocation.fragments.DetailFragment"
@@ -34,6 +37,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        app:srcCompat="@android:drawable/ic_input_add" />
 
 </android.support.design.widget.CoordinatorLayout>

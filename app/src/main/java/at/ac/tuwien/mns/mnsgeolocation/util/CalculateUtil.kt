@@ -18,6 +18,7 @@ class CalculateUtil {
 //            return (System.currentTimeMillis() - TimeUnit.MILLISECONDS.convert(timeStamp, timeUnit)).toInt()
         }
 
+        // TODO 5 GhZ channels
         fun getChannelFromFrequency(frequency: Int): Int {
             return channelsFrequency.indexOf(Integer.valueOf(frequency))
         }
