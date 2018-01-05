@@ -207,11 +207,13 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
             // reset icons, remove loading overlay, ...
             this.endMeasurement()
 
+            val m = currentMeasurement!!
+
             // use the last known GPS location for the measurement
-            currentMeasurement!!.gpsLocation = lastGPSLocation
+            m.gpsLocation = lastGPSLocation
 
             // TODO refactor list to display measurements and not a string
-            val msg = "Lat: " + currentMeasurement!!.gpsLocation?.latitude + ", Lon: " + currentMeasurement!!.gpsLocation?.longitude
+            val msg = "Lat: " + m.gpsLocation?.latitude + ", Lon: " + m.gpsLocation?.longitude
             showToast(msg, Toast.LENGTH_LONG)
             listItems.add(msg)
             if (listAdapter != null) {
@@ -222,7 +224,7 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
             // ----- email sending ------
             // TODO move email sending to correct place
             val cal = Calendar.getInstance()
-            cal.timeInMillis = currentMeasurement!!.timestamp
+            cal.timeInMillis = m.timestamp
             val localDate = SimpleDateFormat.getDateTimeInstance().format(cal.time)
 
             val filename = "measurement_" + SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(cal.time) + ".txt"
@@ -236,10 +238,10 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
                 }
             }
 
-            val glat = currentMeasurement!!.gpsLocation!!.latitude
-            val glon = currentMeasurement!!.gpsLocation!!.longitude
-            val mlat = currentMeasurement!!.mlsResponse!!.location!!.lat!!
-            val mlon = currentMeasurement!!.mlsResponse!!.location!!.lng!!
+            val glat = m.gpsLocation!!.latitude
+            val glon = m.gpsLocation!!.longitude
+            val mlat = m.mlsResponse!!.location!!.lat!!
+            val mlon = m.mlsResponse!!.location!!.lng!!
             val distance = DistanceUtils.haversineDistance(glat, glon, mlat, mlon)
 
             val b = StringBuilder()
@@ -253,7 +255,7 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
                     .append(glon)
                     .append("°E\n")
                     .append("  Accuracy: ")
-                    .append(currentMeasurement!!.gpsLocation?.accuracy)
+                    .append(m.gpsLocation?.accuracy)
                     .append(" m\n\n")
             b.append("MLS:\n")
                     .append("  Location: ")
@@ -262,17 +264,17 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
                     .append(mlon)
                     .append("°E\n")
                     .append("  Accuracy: ")
-                    .append(currentMeasurement!!.mlsResponse?.accuracy)
+                    .append(m.mlsResponse?.accuracy)
                     .append(" m\n")
                     .append("  Parameters:\n")
                     .append("    Cell Towers:\n")
-            for (tower in currentMeasurement!!.mlsRequestParams!!.cellTowers) {
+            for (tower in m.mlsRequestParams!!.cellTowers) {
                 b.append("      - ")
                 b.append(tower)
                 b.append("\n")
             }
             b.append("    WIFI Access Points:\n")
-            for (ap in currentMeasurement!!.mlsRequestParams!!.wifiAccessPoints) {
+            for (ap in m.mlsRequestParams!!.wifiAccessPoints) {
                 b.append("      - ")
                 b.append(ap)
                 b.append("\n")
