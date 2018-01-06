@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="at.ac.tuwien.mns.mnsgeolocation.DetailsActivity">
+
+    <item
+        android:id="@+id/action_delete"
+        android:orderInCategory="100"
+        android:title="@string/action_mail"
+        android:icon="@drawable/ic_delete_black_24dp"
+        android:fillColor="@android:color/white"
+        app:showAsAction="ifRoom"
+        tools:targetApi="lollipop" />
+
+    <item
+        android:id="@+id/action_mail"
+        android:orderInCategory="100"
+        android:title="@string/action_delete"
+        android:icon="@drawable/ic_email_black_24dp"
+        android:fillColor="@android:color/white"
+        app:showAsAction="always"
+        tools:targetApi="lollipop" />
+
+</menu>

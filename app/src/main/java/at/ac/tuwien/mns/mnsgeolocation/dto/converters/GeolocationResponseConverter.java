@@ -18,7 +18,7 @@ public class GeolocationResponseConverter implements PropertyConverter<Geolocati
         if (deserialized instanceof GeolocationResponse) {
             return (GeolocationResponse) deserialized;
         } else {
-            Log.e("GeolocationParamsConv.", "Wrong type " + deserialized.getClass());
+            Log.e("GeolocationParamsConv.", "Wrong type " + (deserialized != null ? deserialized.getClass() : null));
             return null;
         }
     }

@@ -5,16 +5,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.view.Menu
-import android.view.MenuItem
-import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
 import at.ac.tuwien.mns.mnsgeolocation.dto.GeolocationRequestParams
-import at.ac.tuwien.mns.mnsgeolocation.fragments.DetailFragment
+import at.ac.tuwien.mns.mnsgeolocation.fragments.DetailsFragment
 import at.ac.tuwien.mns.mnsgeolocation.service.*
 import at.ac.tuwien.mns.mnsgeolocation.util.PermissionUtil
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -26,6 +22,8 @@ import android.content.ServiceConnection
 import android.util.Log
 import android.view.View
 import at.ac.tuwien.mns.mnsgeolocation.dto.Location
+import android.widget.AdapterView
+import at.ac.tuwien.mns.mnsgeolocation.adapters.MeasurementListAdapter
 import at.ac.tuwien.mns.mnsgeolocation.dto.Measurement
 import at.ac.tuwien.mns.mnsgeolocation.dto.MeasurementDao
 import at.ac.tuwien.mns.mnsgeolocation.util.DisplayUtil
@@ -39,7 +37,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentInteractionListener {
+class MeasurementActivity : AppCompatActivity(), AdapterView.OnItemClickListener  {
 
     private val LOG_TAG = javaClass.canonicalName
 
@@ -57,8 +55,8 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
 
     var progressOverlay: View? = null
 
-    private val listItems: ArrayList<String> = ArrayList()
-    private var listAdapter: ArrayAdapter<String>? = null
+    private val listItems: ArrayList<Measurement> = ArrayList()
+    private var listAdapter: MeasurementListAdapter? = null
 
     private var mlsLocationService: MLSLocationService = ServiceFactory.getMlsLocationService()
 
@@ -84,8 +82,9 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         this.progressOverlay = findViewById(R.id.progress_overlay)
 
         val listView = findViewById<ListView>(R.id.listView) as ListView
-        this.listAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, android.R.id.text1, listItems)
+        this.listAdapter = MeasurementListAdapter(listView.context, listItems)
         listView.adapter = listAdapter
+        listView.onItemClickListener = this
 
         startManagerService()
 
@@ -96,7 +95,7 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         // query all notes, sorted a-z by their text
         val measurementsQuery = measurementDao!!.queryBuilder().orderAsc(MeasurementDao.Properties.Id).build();
         val measurements: List<Measurement> = measurementsQuery.list()
-        println(measurements)
+        listItems.addAll(measurements)
     }
 
     override fun onStart() {
@@ -105,21 +104,6 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         bindService(managerServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_measurement_list, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -128,10 +112,6 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         } else {
             managerService?.tryStartingServices()
         }
-    }
-
-    override fun onFragmentInteraction(uri: Uri) {
-        //TODO
     }
 
     override fun onResume() {
@@ -154,6 +134,12 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         stopService(managerServiceIntent)
     }
 
+    override fun onItemClick(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
+        val intent = Intent(parent?.context, DetailsActivity::class.java)
+        intent.putExtra(DetailsFragment.ARG_MEASUREMENT, parent?.getItemAtPosition(pos) as Measurement)
+        startActivity(intent)
+    }
+
     private fun showToast(text: String, duration: Int) {
         Toast.makeText(this, text, duration).show()
     }
@@ -172,7 +158,7 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         // start service to get cell towers and wifi access points
         managerService!!.startMLSScanner()
 
-        this.fab.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
+        this.fab.setImageResource(R.drawable.ic_close_black_24dp)
         this.fab.setOnClickListener {
             Log.i(LOG_TAG, "Aborting measurement")
             this.endMeasurement()
@@ -193,8 +179,8 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         this.measuring = false
         this.measurmentTimeout?.dispose()
 
-        this.fab.setImageResource(android.R.drawable.ic_input_add)
-        this.fab.setOnClickListener { this.startMeasurement() }
+        this.fab.setImageResource(R.drawable.ic_add_black_24dp)
+        this.fab.setOnClickListener {this.startMeasurement()}
     }
 
     private fun processGPSLocationMsg(location: Location?) {
@@ -226,89 +212,11 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
             // insert it into the database
             m.id = this.measurementDao?.insert(m)
 
-            // TODO refactor list to display measurements and not a string
-            val msg = "Lat: " + m.gpsLocation?.lat + ", Lon: " + m.gpsLocation?.lng
-            showToast(msg, Toast.LENGTH_LONG)
-            listItems.add(msg)
+            listItems.add(m)
             if (listAdapter != null) {
                 listAdapter?.notifyDataSetChanged()
             }
             Log.i(LOG_TAG, "Measurement complete: " + currentMeasurement)
-
-            // ----- email sending ------
-            // TODO move email sending to correct place
-            val cal = Calendar.getInstance()
-            cal.timeInMillis = m.timestamp
-            val localDate = SimpleDateFormat.getDateTimeInstance().format(cal.time)
-
-            val filename = "measurement_" + SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(cal.time) + ".txt"
-            val outputDir = applicationContext.cacheDir // context being the Activity pointer
-            val outputFile = File(outputDir, filename)
-            if (!outputFile.exists()) {
-                try {
-                    outputFile.createNewFile()
-                } catch (e: IOException) {
-                    Log.e(LOG_TAG, "Could not create temp file for email attachment.")
-                }
-            }
-
-            val glat = m.gpsLocation!!.lat!!
-            val glon = m.gpsLocation!!.lng!!
-            val mlat = m.mlsResponse!!.location!!.lat!!
-            val mlon = m.mlsResponse!!.location!!.lng!!
-            val distance = DistanceUtils.haversineDistance(glat, glon, mlat, mlon)
-
-            val b = StringBuilder()
-            b.append("GPS vs MLS measurement from ")
-                    .append(localDate)
-                    .append(":\n\n")
-            b.append("GPS:\n")
-                    .append("  Location: ")
-                    .append(glat)
-                    .append("°N / ")
-                    .append(glon)
-                    .append("°E\n")
-                    .append("  Accuracy: ")
-                    .append(m.gpsLocation?.accuracy)
-                    .append(" m\n\n")
-            b.append("MLS:\n")
-                    .append("  Location: ")
-                    .append(mlat)
-                    .append("°N / ")
-                    .append(mlon)
-                    .append("°E\n")
-                    .append("  Accuracy: ")
-                    .append(m.mlsResponse?.accuracy)
-                    .append(" m\n")
-                    .append("  Parameters:\n")
-                    .append("    Cell Towers:\n")
-            for (tower in m.mlsRequestParams!!.cellTowers) {
-                b.append("      - ")
-                b.append(tower)
-                b.append("\n")
-            }
-            b.append("    WIFI Access Points:\n")
-            for (ap in m.mlsRequestParams!!.wifiAccessPoints) {
-                b.append("      - ")
-                b.append(ap)
-                b.append("\n")
-            }
-            b.append("\nDistance: ")
-                    .append(distance)
-                    .append(" m")
-
-            outputFile.writeText(b.toString())
-
-            val emailIntent = Intent(Intent.ACTION_SEND)
-            emailIntent.type = "text/plain"
-            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "MNSMeasurement at " + localDate)
-            emailIntent.putExtra(Intent.EXTRA_TEXT, "Hello!\n\nThis email holds your measurement from " + localDate + " as an attachment.")
-            // set the attachment, share via own file provider
-            emailIntent.putExtra(Intent.EXTRA_STREAM, OwnFileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID, outputFile))
-            // give temporary permission to the folder containing the email attachment
-            emailIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-            startActivity(emailIntent)
         }
     }
 

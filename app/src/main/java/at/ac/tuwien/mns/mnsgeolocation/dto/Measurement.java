@@ -1,5 +1,8 @@
 package at.ac.tuwien.mns.mnsgeolocation.dto;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
@@ -18,7 +21,7 @@ import at.ac.tuwien.mns.mnsgeolocation.dto.converters.LocationConverter;
  * Created by johannesvass on 03.01.18.
  */
 @Entity
-public class Measurement {
+public class Measurement implements Parcelable {
 
     @Id(autoincrement = true)
     private Long id;
@@ -50,6 +53,58 @@ public class Measurement {
                 null,
                 null);
     }
+
+    protected Measurement(Parcel in) {
+        if (in.readByte() == 0) {
+            id = null;
+        } else {
+            id = in.readLong();
+        }
+        if (in.readByte() == 0) {
+            timestamp = null;
+        } else {
+            timestamp = in.readLong();
+        }
+        gpsLocation = in.readParcelable(Location.class.getClassLoader());
+        mlsRequestParams = in.readParcelable(GeolocationRequestParams.class.getClassLoader());
+        mlsResponse = in.readParcelable(GeolocationResponse.class.getClassLoader());
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        if (id == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeLong(id);
+        }
+        if (timestamp == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeLong(timestamp);
+        }
+        dest.writeParcelable(gpsLocation, flags);
+        dest.writeParcelable(mlsRequestParams, flags);
+        dest.writeParcelable(mlsResponse, flags);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Measurement> CREATOR = new Creator<Measurement>() {
+        @Override
+        public Measurement createFromParcel(Parcel in) {
+            return new Measurement(in);
+        }
+
+        @Override
+        public Measurement[] newArray(int size) {
+            return new Measurement[size];
+        }
+    };
 
     public Long getId() {
         return id;
