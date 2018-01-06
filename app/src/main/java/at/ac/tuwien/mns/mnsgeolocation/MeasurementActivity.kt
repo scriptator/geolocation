@@ -90,12 +90,14 @@ class MeasurementActivity : AppCompatActivity(), AdapterView.OnItemClickListener
 
         // get the DAO
         val daoSession = (application as Application).getDaoSession();
-        measurementDao = daoSession.measurementDao
+        if (daoSession != null) {
+            measurementDao = daoSession.measurementDao
 
-        // query all notes, sorted a-z by their text
-        val measurementsQuery = measurementDao!!.queryBuilder().orderAsc(MeasurementDao.Properties.Id).build();
-        val measurements: List<Measurement> = measurementsQuery.list()
-        listItems.addAll(measurements)
+            // query all notes, sorted a-z by their text
+            val measurementsQuery = measurementDao!!.queryBuilder().orderAsc(MeasurementDao.Properties.Id).build();
+            val measurements: List<Measurement> = measurementsQuery.list()
+            listItems.addAll(measurements)
+        }
     }
 
     override fun onStart() {
