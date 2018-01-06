@@ -4,13 +4,14 @@ import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
+import android.os.Parcelable
 import android.widget.Toast
+import at.ac.tuwien.mns.mnsgeolocation.dto.Location
 import at.ac.tuwien.mns.mnsgeolocation.util.PermissionUtil
 
 
@@ -57,27 +58,29 @@ class GPSLocationService : Service() {
         Handler().post(gpsStarter)
     }
 
-    private fun publishResults(location: Location?) {
+    // converts to own location class and sends intent
+    private fun publishResults(location: android.location.Location?) {
 
         // TODO remove next block, this is just for mocking if the last location is unknown
         if (location == null) {
-            val mockLocation = Location(LocationManager.GPS_PROVIDER)
-            mockLocation.latitude = 48.210033
-            mockLocation.longitude = 16.363449
+            val mockLocation = Location()
+            mockLocation.lat = 48.210033
+            mockLocation.lng = 16.363449
+            mockLocation.accuracy = 25f
             val publishIntent = Intent(NOTIFICATION)
-            publishIntent.putExtra(LOCATION, mockLocation)
+            publishIntent.putExtra(LOCATION, mockLocation as Parcelable)
             sendBroadcast(publishIntent)
             return
         }
 
         val publishIntent = Intent(NOTIFICATION)
-        publishIntent.putExtra(LOCATION, location)
+        publishIntent.putExtra(LOCATION, Location(location) as Parcelable)
         sendBroadcast(publishIntent)
     }
 
     private inner class GPSLocationListener : LocationListener {
 
-        override fun onLocationChanged(location: Location) {
+        override fun onLocationChanged(location: android.location.Location) {
             println("Location changed: Lat: " + location.getLatitude() + " Lng: " + location.getLongitude())
             publishResults(location)
         }

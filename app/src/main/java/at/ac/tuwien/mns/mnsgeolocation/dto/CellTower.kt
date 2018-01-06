@@ -2,6 +2,7 @@ package at.ac.tuwien.mns.mnsgeolocation.dto
 
 import android.os.Parcel
 import android.os.Parcelable
+import java.io.Serializable
 
 /**
  * Immutable cell tower class
@@ -17,7 +18,7 @@ open class CellTower(val mobileCountryCode: Int,
                      val signalStrength: Int? = null,
                      val age: Int? = null,
                      val psc: Int? = null,
-                     val timingAdvance: Int? = null) : Parcelable {
+                     val timingAdvance: Int? = null) : Parcelable, Serializable {
     constructor(parcel: Parcel) : this(
             parcel.readInt(),
             parcel.readInt(),

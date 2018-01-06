@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
+import android.os.Parcelable
 import android.telephony.*
 import android.widget.Toast
 import at.ac.tuwien.mns.mnsgeolocation.dto.CellTower
@@ -28,18 +29,20 @@ class MLSScannerService : IntentService("MLSScannerService") {
 
     override fun onHandleIntent(p0: Intent?) {
         val wifiAccessPoints = scanForWifiAccessPoints()
-        if (wifiAccessPoints.isEmpty()) {
-            return
-        }
+        // TODO why was this there? When there is no wifi in range it won't work
+//        if (wifiAccessPoints.isEmpty()) {
+//            return
+//        }
         val cellTowers = scanForCellTowers()
-        if (wifiAccessPoints.isEmpty() || cellTowers.isEmpty()) {
-            publishResults(null)
-        } else {
+        //if (wifiAccessPoints.isEmpty() && cellTowers.isEmpty()) {
+            // FIXME this does not work (null not allowed) - what shall we do when nothing is available?
+            // publishResults(null)
+       //  } else {
             val request = GeolocationRequestParams()
             request.wifiAccessPoints = wifiAccessPoints
             request.cellTowers = cellTowers
             publishResults(request)
-        }
+        //}
     }
 
 
@@ -72,7 +75,7 @@ class MLSScannerService : IntentService("MLSScannerService") {
 
     private fun publishResults(geolocationRequestParams: GeolocationRequestParams?) {
         val publishIntent = Intent(NOTIFICATION)
-        publishIntent.putExtra(MLS_REQUEST, geolocationRequestParams)
+        publishIntent.putExtra(MLS_REQUEST, geolocationRequestParams as Parcelable)
         sendBroadcast(publishIntent)
     }
 

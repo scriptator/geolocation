@@ -1,14 +1,18 @@
 package at.ac.tuwien.mns.mnsgeolocation.dto;
 
-import android.location.Location;
-
+import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Transient;
 
 import java.util.Calendar;
 import org.greenrobot.greendao.annotation.Generated;
+
+import at.ac.tuwien.mns.mnsgeolocation.dto.converters.GeolocationRequestParamsConverter;
+import at.ac.tuwien.mns.mnsgeolocation.dto.converters.GeolocationResponseConverter;
+import at.ac.tuwien.mns.mnsgeolocation.dto.converters.LocationConverter;
 
 /**
  * Created by johannesvass on 03.01.18.
@@ -22,14 +26,16 @@ public class Measurement {
     @NotNull
     private Long timestamp;
 
-    @Transient
+    @Convert(converter = LocationConverter.class, columnType = byte[].class)
     private Location gpsLocation;
-    @Transient
+    @Convert(converter = GeolocationRequestParamsConverter.class, columnType = byte[].class)
     private GeolocationRequestParams mlsRequestParams;
-    @Transient
+    @Convert(converter = GeolocationResponseConverter.class, columnType = byte[].class)
     private GeolocationResponse mlsResponse;
 
-    public Measurement(Long id, Long timestamp, Location gpsLocation, GeolocationRequestParams mlsRequestParams, GeolocationResponse mlsResponse) {
+    @Generated(hash = 946977947)
+    public Measurement(Long id, @NotNull Long timestamp, Location gpsLocation, GeolocationRequestParams mlsRequestParams,
+            GeolocationResponse mlsResponse) {
         this.id = id;
         this.timestamp = timestamp;
         this.gpsLocation = gpsLocation;
@@ -37,17 +43,12 @@ public class Measurement {
         this.mlsResponse = mlsResponse;
     }
 
+    @Keep
     public Measurement() {
         this(null, Calendar.getInstance().getTimeInMillis(),
                 null,
                 null,
                 null);
-    }
-
-    @Generated(hash = 116883927)
-    public Measurement(Long id, @NotNull Long timestamp) {
-        this.id = id;
-        this.timestamp = timestamp;
     }
 
     public Long getId() {

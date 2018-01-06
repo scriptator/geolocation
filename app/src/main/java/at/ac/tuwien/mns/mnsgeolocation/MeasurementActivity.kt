@@ -23,9 +23,9 @@ import kotlinx.android.synthetic.main.activity_measurement_list.*
 import android.content.ComponentName
 import android.os.IBinder
 import android.content.ServiceConnection
-import android.location.Location
 import android.util.Log
 import android.view.View
+import at.ac.tuwien.mns.mnsgeolocation.dto.Location
 import at.ac.tuwien.mns.mnsgeolocation.dto.Measurement
 import at.ac.tuwien.mns.mnsgeolocation.dto.MeasurementDao
 import at.ac.tuwien.mns.mnsgeolocation.util.DisplayUtil
@@ -126,8 +126,7 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
         if (PermissionUtil.requestPermissionsResultFailed(requestCode, permissions, grantResults)) {
             showToast("Location permission required!", Toast.LENGTH_LONG)
         } else {
-            // TODO does it make sense to start the services already here or only when the plus button is pressed?
-            //managerService?.tryStartingServices()
+            managerService?.tryStartingServices()
         }
     }
 
@@ -220,13 +219,15 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
             this.endMeasurement()
 
             val m = currentMeasurement!!
-            m.id = this.measurementDao?.insert(m)
 
             // use the last known GPS location for the measurement
             m.gpsLocation = lastGPSLocation
 
+            // insert it into the database
+            m.id = this.measurementDao?.insert(m)
+
             // TODO refactor list to display measurements and not a string
-            val msg = "Lat: " + m.gpsLocation?.latitude + ", Lon: " + m.gpsLocation?.longitude
+            val msg = "Lat: " + m.gpsLocation?.lat + ", Lon: " + m.gpsLocation?.lng
             showToast(msg, Toast.LENGTH_LONG)
             listItems.add(msg)
             if (listAdapter != null) {
@@ -251,8 +252,8 @@ class MeasurementActivity : AppCompatActivity(), DetailFragment.OnFragmentIntera
                 }
             }
 
-            val glat = m.gpsLocation!!.latitude
-            val glon = m.gpsLocation!!.longitude
+            val glat = m.gpsLocation!!.lat!!
+            val glon = m.gpsLocation!!.lng!!
             val mlat = m.mlsResponse!!.location!!.lat!!
             val mlon = m.mlsResponse!!.location!!.lng!!
             val distance = DistanceUtils.haversineDistance(glat, glon, mlat, mlon)

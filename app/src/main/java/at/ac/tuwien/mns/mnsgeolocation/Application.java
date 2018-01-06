@@ -25,6 +25,7 @@ public class Application extends android.app.Application {
         DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "measurements.db");
         // TODO secure password
         Database db = helper.getEncryptedWritableDb("1234");
+
         daoSession = new DaoMaster(db).newSession();
     }
 }

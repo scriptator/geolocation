@@ -5,12 +5,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.location.Location
 import android.os.Binder
 import android.os.Handler
 import android.os.IBinder
 import android.os.Parcelable
 import at.ac.tuwien.mns.mnsgeolocation.dto.GeolocationRequestParams
+import at.ac.tuwien.mns.mnsgeolocation.dto.Location
 import at.ac.tuwien.mns.mnsgeolocation.util.PermissionUtil
 
 /**
