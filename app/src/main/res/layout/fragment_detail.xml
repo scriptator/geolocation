@@ -5,16 +5,14 @@
     android:layout_height="match_parent"
     tools:context="at.ac.tuwien.mns.mnsgeolocation.fragments.DetailsFragment">
 
-    <android.support.constraint.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context="at.ac.tuwien.mns.mnsgeolocation.fragments.DetailsFragment">
+        android:orientation="vertical">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="0dp"
             android:minHeight="48dp"
             android:paddingTop="8dp"
             android:gravity="center_vertical"
@@ -41,10 +39,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="48dp"
             android:minHeight="48dp"
-            android:paddingTop="8dp"
             android:gravity="center_vertical"
             android:descendantFocusability="blocksDescendants">
 
@@ -70,20 +65,14 @@
             android:id="@+id/divider"
             android:layout_width="match_parent"
             android:background="@android:color/darker_gray"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             android:layout_height="2dp"
-            android:layout_marginTop="96dp"
-            android:paddingTop="8dp"/>
+            android:paddingTop="12dp"/>
 
         <TextView
             android:id="@+id/mls"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="100dp"
             android:paddingTop="8dp"
             android:textColor="@color/colorPrimary"
             android:text="@string/mls"
@@ -94,10 +83,8 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="133dp"
             android:minHeight="48dp"
-            android:paddingTop="8dp"
+            android:paddingTop="12dp"
             android:gravity="center_vertical"
             android:descendantFocusability="blocksDescendants">
 
@@ -122,8 +109,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="181dp"
             android:minHeight="48dp"
             android:gravity="center_vertical"
             android:descendantFocusability="blocksDescendants">
@@ -149,8 +134,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="229dp"
             android:minHeight="48dp"
             android:gravity="center_vertical"
             android:descendantFocusability="blocksDescendants">
@@ -177,20 +160,14 @@
             android:id="@+id/divider2"
             android:layout_width="match_parent"
             android:background="@android:color/darker_gray"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             android:layout_height="2dp"
-            android:layout_marginTop="277dp"
-            android:paddingTop="8dp"/>
+            android:paddingTop="12dp"/>
 
         <TextView
             android:id="@+id/gps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="281dp"
             android:paddingTop="8dp"
             android:textColor="@color/colorAccent"
             android:text="@string/gps"
@@ -201,10 +178,8 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="314dp"
             android:minHeight="48dp"
-            android:paddingTop="8dp"
+            android:paddingTop="12dp"
             android:gravity="center_vertical"
             android:descendantFocusability="blocksDescendants">
 
@@ -229,8 +204,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="362dp"
             android:minHeight="48dp"
             android:paddingBottom="8dp"
             android:gravity="center_vertical"
@@ -254,6 +227,6 @@
 
         </RelativeLayout>
 
-    </android.support.constraint.ConstraintLayout>
+    </LinearLayout>
 
 </ScrollView>

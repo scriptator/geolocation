@@ -12,6 +12,7 @@ import at.ac.tuwien.mns.mnsgeolocation.R
 import at.ac.tuwien.mns.mnsgeolocation.dto.Measurement
 import at.ac.tuwien.mns.mnsgeolocation.util.DistanceUtils
 import org.w3c.dom.Text
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 
 
@@ -46,30 +47,29 @@ class DetailsFragment : Fragment() {
         val gpsPos = view.findViewById<TextView>(R.id.gpsPosValue)
         val accuracy = view.findViewById<TextView>(R.id.accuracyValue)
 
+        time.text = dateFormat.format(measurement?.timestamp)
         val glat = measurement!!.gpsLocation!!.latitude
         val glon = measurement!!.gpsLocation!!.longitude
         val mlat = measurement!!.mlsResponse!!.location!!.lat!!
         val mlon = measurement!!.mlsResponse!!.location!!.lng!!
-
         val dist = DistanceUtils.haversineDistance(glat, glon, mlat, mlon)
-
-        time.text = dateFormat.format(measurement?.timestamp)
-        distance.text = StringBuilder().append(dist).append("m")
+        val decimalForm = DecimalFormat("#.##")
+        distance.text = StringBuilder().append(decimalForm.format(dist)).append("m")
         mlsPos.text = StringBuilder().append(mlat).append("°N\n").append(mlon).append("°E")
         var b = StringBuilder()
         for (tower in measurement?.mlsRequestParams!!.cellTowers) {
-            b.append(tower.cellId).append("\n")
+            b.append("CID: ").append(tower.cellId).append(" Strength: ").append(tower.signalStrength).append("\n")
         }
-        //b.delete(b.length-2,b.length)
+        b.delete(b.length-2,b.length)
         cells.text = b
         b = StringBuilder()
         for (ap in measurement?.mlsRequestParams!!.wifiAccessPoints) {
-            b.append(ap.macAddress).append("\n")
+            b.append("MAC: ").append(ap.macAddress).append(" Strength: ").append(ap.signalStrength).append("\n")
         }
-        //b.delete(b.length-2,b.length)
+        b.delete(b.length-2,b.length)
         wifi.text = b
         gpsPos.text = StringBuilder().append(glat).append("°N\n").append(glon).append("°E")
-        accuracy.text = StringBuilder().append(measurement?.gpsLocation?.accuracy).append("m")
+        accuracy.text = StringBuilder().append(decimalForm.format(measurement?.gpsLocation?.accuracy)).append("m")
         return view
     }
 
