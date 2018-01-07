@@ -101,6 +101,8 @@ class MLSScannerService : IntentService("MLSScannerService") {
     private fun processCellInfos(list: List<CellInfo>): List<CellTower> {
         return list.map { item ->
             parseCellInfo(item)
+        }.filter { item ->
+            !item.cellId.equals(Integer.MAX_VALUE)
         }
     }
 
