@@ -67,6 +67,14 @@ class MeasurementActivity : AppCompatActivity(), AdapterView.OnItemClickListener
             when {
                 ManagerService.NOTIFICATION_TYPE_LOCATION.equals(type) -> processGPSLocationMsg(intent?.extras?.getParcelable<Location>(ManagerService.CONTENT))
                 ManagerService.NOTIFICATION_TYPE_MLS_REQUEST.equals(type) -> conductMLSLocationRequest(intent?.extras?.getParcelable<GeolocationRequestParams>(ManagerService.CONTENT))
+                ManagerService.NOTIFICATION_TYPE_MLS_ERR.equals(type) || ManagerService.NOTIFICATION_TYPE_LOCATION_ERR.equals(type) -> {
+                    val errMsg = intent?.extras?.getString(ManagerService.CONTENT)
+                    if (errMsg != null) {
+                        showToast(errMsg, Toast.LENGTH_LONG)
+                    } else {
+                        showToast("An error occurred.", Toast.LENGTH_LONG)
+                    }
+                }
                 ManagerService.NOTIFICATION_TYPE_PERM_FAILED.equals(type) -> PermissionUtil.requestRequiredPermissions(this@MeasurementActivity)
             }
         }
