@@ -30,7 +30,9 @@ class ManagerService : Service() {
         val NOTIFICATION: String = "at.ac.tuwien.mns.mnsgeolocation.service.managerservice"
         val NOTIFICATION_TYPE: String = "notification_type"
         val NOTIFICATION_TYPE_PERM_FAILED: String = "nt_permission_failed"
+        val NOTIFICATION_TYPE_MLS_ERR: String = "nt_mls_err"
         val NOTIFICATION_TYPE_MLS_REQUEST: String = "nt_mls_request"
+        val NOTIFICATION_TYPE_LOCATION_ERR: String = "nt_location_err"
         val NOTIFICATION_TYPE_LOCATION: String = "nt_location"
         val CONTENT: String = "content"
     }
@@ -53,17 +55,29 @@ class ManagerService : Service() {
 
     private val receiverGPS = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            val location = intent?.extras?.getParcelable<Location>(GPSLocationService.LOCATION)
-            println(location.toString())
-            publishResults(NOTIFICATION_TYPE_LOCATION, location)
+            if (GPSLocationService.TYPE_SUCCESS.equals(intent?.extras?.getString(GPSLocationService.TYPE))) {
+                val location = intent?.extras?.getParcelable<Location>(GPSLocationService.LOCATION)
+                println(location.toString())
+                publishResults(NOTIFICATION_TYPE_LOCATION, location)
+            } else {
+                val errMsg = intent?.extras?.getString(GPSLocationService.ERR_MSG)
+                println(errMsg)
+                publishErr(NOTIFICATION_TYPE_LOCATION_ERR, errMsg)
+            }
         }
     }
 
     private val receiverMLS = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            val mlsRequest = intent?.extras?.getParcelable<GeolocationRequestParams>(MLSScannerService.MLS_REQUEST)
-            println(mlsRequest.toString())
-            publishResults(NOTIFICATION_TYPE_MLS_REQUEST, mlsRequest)
+            if (MLSScannerService.TYPE_SUCCESS.equals(intent?.extras?.getString(MLSScannerService.TYPE))) {
+                val mlsRequest = intent?.extras?.getParcelable<GeolocationRequestParams>(MLSScannerService.MLS_REQUEST)
+                println(mlsRequest.toString())
+                publishResults(NOTIFICATION_TYPE_MLS_REQUEST, mlsRequest)
+            } else {
+                val errMsg = intent?.extras?.getString(MLSScannerService.ERR_MSG)
+                println(errMsg)
+                publishErr(NOTIFICATION_TYPE_MLS_ERR, errMsg)
+            }
         }
     }
 
@@ -81,7 +95,9 @@ class ManagerService : Service() {
     override fun onDestroy() {
         unregisterReceiver(receiverGPS)
         unregisterReceiver(receiverMLS)
-        stopService(gpsIntent)
+        if (gpsIntent != null) {
+            stopService(gpsIntent)
+        }
         super.onDestroy()
     }
 
@@ -98,6 +114,13 @@ class ManagerService : Service() {
     }
 
     private fun publishResults(notifType: String, content: Parcelable?) {
+        val publishIntent = Intent(NOTIFICATION)
+        publishIntent.putExtra(NOTIFICATION_TYPE, notifType)
+        publishIntent.putExtra(CONTENT, content)
+        sendBroadcast(publishIntent)
+    }
+
+    private fun publishErr(notifType: String, content: String?) {
         val publishIntent = Intent(NOTIFICATION)
         publishIntent.putExtra(NOTIFICATION_TYPE, notifType)
         publishIntent.putExtra(CONTENT, content)

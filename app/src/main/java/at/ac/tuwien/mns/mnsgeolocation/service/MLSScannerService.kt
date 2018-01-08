@@ -8,7 +8,6 @@ import android.net.wifi.ScanResult
 import android.net.wifi.WifiManager
 import android.os.Parcelable
 import android.telephony.*
-import android.widget.Toast
 import at.ac.tuwien.mns.mnsgeolocation.dto.CellTower
 import at.ac.tuwien.mns.mnsgeolocation.dto.GeolocationRequestParams
 import at.ac.tuwien.mns.mnsgeolocation.dto.WifiAccessPoint
@@ -24,25 +23,30 @@ class MLSScannerService : IntentService("MLSScannerService") {
 
     companion object {
         val NOTIFICATION: String = "at.ac.tuwien.mns.mnsgeolocation.service.mlsscanner"
+        val TYPE: String = "result_type"
+        val TYPE_ERR: String = "type_error"
+        val ERR_MSG: String = "err_msg"
+        val TYPE_SUCCESS: String = "type_success"
+        val NO_WIFI_ACCESS_POINTS_FOUND: String = "Wifi is disabled or there are no access points!"
+        val NO_TOWERS_FOUND: String = "No cell towers found!"
         val MLS_REQUEST: String = "mls_request"
     }
 
     override fun onHandleIntent(p0: Intent?) {
         val wifiAccessPoints = scanForWifiAccessPoints()
-        // TODO why was this there? When there is no wifi in range it won't work
-//        if (wifiAccessPoints.isEmpty()) {
-//            return
-//        }
+        if (wifiAccessPoints.isEmpty()) {
+            publishErr(NO_WIFI_ACCESS_POINTS_FOUND)
+            return
+        }
         val cellTowers = scanForCellTowers()
-        //if (wifiAccessPoints.isEmpty() && cellTowers.isEmpty()) {
-            // FIXME this does not work (null not allowed) - what shall we do when nothing is available?
-            // publishResults(null)
-       //  } else {
+        if (cellTowers.isEmpty()) {
+            publishErr(NO_TOWERS_FOUND)
+        } else {
             val request = GeolocationRequestParams()
             request.wifiAccessPoints = wifiAccessPoints
             request.cellTowers = cellTowers
             publishResults(request)
-        //}
+        }
     }
 
 
@@ -61,21 +65,27 @@ class MLSScannerService : IntentService("MLSScannerService") {
         val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val wifiGranted = PermissionUtil.wifiPermissionGranted(this)
         if (!PermissionUtil.wifiEnabled(this)) {
-            Toast.makeText(this, "Please activate your Wifi!", Toast.LENGTH_SHORT).show()
             return emptyList()
         }
         if (wifiGranted) {
             return processScanResults(wifiManager.scanResults)
         } else {
             println("Permission denied, something went wrong, permission was already checked.")
-            Toast.makeText(this, "Wifi permission required!", Toast.LENGTH_SHORT).show()
         }
         return emptyList()
     }
 
-    private fun publishResults(geolocationRequestParams: GeolocationRequestParams?) {
+    private fun publishErr(err: String?) {
+        val publishIntent = Intent(NOTIFICATION)
+        publishIntent.putExtra(TYPE, TYPE_ERR)
+        publishIntent.putExtra(ERR_MSG, err)
+        sendBroadcast(publishIntent)
+    }
+
+    private fun publishResults(geolocationRequestParams: GeolocationRequestParams) {
         val publishIntent = Intent(NOTIFICATION)
         publishIntent.putExtra(MLS_REQUEST, geolocationRequestParams as Parcelable)
+        publishIntent.putExtra(TYPE, TYPE_SUCCESS)
         sendBroadcast(publishIntent)
     }
 
@@ -83,14 +93,15 @@ class MLSScannerService : IntentService("MLSScannerService") {
         return list.filter { item ->
             !item.SSID.endsWith("_nomap")
         }.map { item ->
-            val age = CalculateUtil.calculateAge(item.timestamp, TimeUnit.MICROSECONDS)
-            WifiAccessPoint(item.BSSID, CalculateUtil.getChannelFromFrequency(item.frequency), item.frequency, item.level, null, age)
+            WifiAccessPoint(item.BSSID, CalculateUtil.getChannelFromFrequency(item.frequency), item.frequency, item.level, null, null)
         }
     }
 
     private fun processCellInfos(list: List<CellInfo>): List<CellTower> {
         return list.map { item ->
             parseCellInfo(item)
+        }.filter { item ->
+            !item.cellId.equals(Integer.MAX_VALUE)
         }
     }
 
@@ -129,7 +140,6 @@ class MLSScannerService : IntentService("MLSScannerService") {
             cellSignalStrength = cellInfo.cellSignalStrength
             radio = "gsm"
         }
-        val age = CalculateUtil.calculateAge(cellInfo.timeStamp, TimeUnit.NANOSECONDS)
-        return CellTower(mcc, mnc, lac, cid, radio, cellSignalStrength?.dbm, age, psc, ta)
+        return CellTower(mcc, mnc, lac, cid, radio, cellSignalStrength?.dbm, null, psc, ta)
     }
 }

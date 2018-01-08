@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Parcelable
-import android.widget.Toast
 import at.ac.tuwien.mns.mnsgeolocation.dto.Location
 import at.ac.tuwien.mns.mnsgeolocation.util.PermissionUtil
 
@@ -20,29 +19,31 @@ import at.ac.tuwien.mns.mnsgeolocation.util.PermissionUtil
  */
 class GPSLocationService : Service() {
 
+    companion object {
+        val NOTIFICATION: String = "at.ac.tuwien.mns.mnsgeolocation.service.gpslocation"
+        val LOCATION: String = "locationResult"
+        val TYPE: String = "result_type"
+        val TYPE_ERR: String = "type_error"
+        val ERR_MSG: String = "err_msg"
+        val TYPE_SUCCESS: String = "type_success"
+        val GPS_DISABLED: String = "GPS is disabled!"
+    }
+
     @SuppressLint("MissingPermission")
     private val gpsStarter = Runnable {
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val listener = GPSLocationListener()
-        //todo
-//        if (!PermissionUtil.gpsEnabled(this)) {
-//            Toast.makeText(this, "Please activate your GPS!", Toast.LENGTH_SHORT).show()
-//            return
-//        }
+        if (!PermissionUtil.gpsEnabled(this)) {
+            publishErr(GPS_DISABLED)
+            return@Runnable
+        }
 
         if (PermissionUtil.locationPermissionGranted(this@GPSLocationService)) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10f, listener)
             publishResults(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER))
         } else {
             println("Permission denied, something went wrong, permission was already checked.")
-            Toast.makeText(this@GPSLocationService, "Location permission required!", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    companion object {
-        val NOTIFICATION: String = "at.ac.tuwien.mns.mnsgeolocation.service.gpslocation"
-        val LOCATION: String = "locationResult"
-
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -61,20 +62,27 @@ class GPSLocationService : Service() {
     // converts to own location class and sends intent
     private fun publishResults(location: android.location.Location?) {
 
-        // TODO remove next block, this is just for mocking if the last location is unknown
-        if (location == null) {
-            val mockLocation = Location()
-            mockLocation.lat = 48.210033
-            mockLocation.lng = 16.363449
-            mockLocation.accuracy = 25f
-            val publishIntent = Intent(NOTIFICATION)
-            publishIntent.putExtra(LOCATION, mockLocation as Parcelable)
-            sendBroadcast(publishIntent)
-            return
-        }
+//        // TODO remove next block, this is just for mocking if the last location is unknown
+//        if (location == null) {
+//            val mockLocation = Location(LocationManager.GPS_PROVIDER)
+//            mockLocation.latitude = 48.210033
+//            mockLocation.longitude = 16.363449
+//            val publishIntent = Intent(NOTIFICATION)
+//            publishIntent.putExtra(LOCATION, mockLocation)
+//            sendBroadcast(publishIntent)
+//            return
+//        }
 
         val publishIntent = Intent(NOTIFICATION)
         publishIntent.putExtra(LOCATION, Location(location) as Parcelable)
+        publishIntent.putExtra(TYPE, TYPE_SUCCESS)
+        sendBroadcast(publishIntent)
+    }
+
+    private fun publishErr(errMsg: String) {
+        val publishIntent = Intent(NOTIFICATION)
+        publishIntent.putExtra(TYPE, TYPE_ERR)
+        publishIntent.putExtra(ERR_MSG, errMsg)
         sendBroadcast(publishIntent)
     }
 
