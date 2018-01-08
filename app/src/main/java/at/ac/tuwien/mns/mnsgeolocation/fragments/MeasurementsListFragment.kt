@@ -1,9 +1,8 @@
 package at.ac.tuwien.mns.mnsgeolocation.fragments
 
-import android.annotation.SuppressLint
 import android.app.Fragment
-import android.os.Bundle
 import android.content.*
+import android.os.Bundle
 import android.os.IBinder
 import android.support.design.widget.FloatingActionButton
 import android.util.Log
@@ -29,7 +28,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import java.util.ArrayList
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 class MeasurementsListFragment : Fragment(), AdapterView.OnItemClickListener {

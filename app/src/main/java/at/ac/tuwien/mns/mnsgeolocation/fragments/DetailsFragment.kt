@@ -10,10 +10,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.TextView
-import android.widget.Toast
 import at.ac.tuwien.mns.mnsgeolocation.BuildConfig
 import at.ac.tuwien.mns.mnsgeolocation.R
 import at.ac.tuwien.mns.mnsgeolocation.dto.Measurement
+import at.ac.tuwien.mns.mnsgeolocation.dto.MeasurementDao
 import at.ac.tuwien.mns.mnsgeolocation.service.OwnFileProvider
 import at.ac.tuwien.mns.mnsgeolocation.util.DistanceUtils
 import java.io.File
@@ -21,9 +21,6 @@ import java.io.IOException
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
-import android.view.MenuInflater
-import at.ac.tuwien.mns.mnsgeolocation.Application
-import at.ac.tuwien.mns.mnsgeolocation.dto.MeasurementDao
 
 
 class DetailsFragment : Fragment() {

@@ -9,10 +9,6 @@ import android.security.keystore.KeyProperties;
 import android.util.Log;
 import android.widget.Toast;
 
-import at.ac.tuwien.mns.mnsgeolocation.dto.DaoMaster;
-import at.ac.tuwien.mns.mnsgeolocation.dto.DaoSession;
-import at.ac.tuwien.mns.mnsgeolocation.util.CryptographyUtil;
-
 import org.greenrobot.greendao.database.Database;
 
 import java.io.IOException;
@@ -30,6 +26,10 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.util.UUID;
 
 import javax.crypto.NoSuchPaddingException;
+
+import at.ac.tuwien.mns.mnsgeolocation.dto.DaoMaster;
+import at.ac.tuwien.mns.mnsgeolocation.dto.DaoSession;
+import at.ac.tuwien.mns.mnsgeolocation.util.CryptographyUtil;
 
 /**
  * Created by johannesvass on 05.01.18.

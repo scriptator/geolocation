@@ -2,10 +2,12 @@ package at.ac.tuwien.mns.mnsgeolocation.dto;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
 
 public final class GeolocationRequestParams implements Parcelable, Serializable {
     private List<CellTower> cellTowers;

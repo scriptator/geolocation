@@ -5,13 +5,12 @@ import android.os.Parcelable;
 
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.NotNull;
-import org.greenrobot.greendao.annotation.Transient;
 
 import java.util.Calendar;
-import org.greenrobot.greendao.annotation.Generated;
 
 import at.ac.tuwien.mns.mnsgeolocation.dto.converters.GeolocationRequestParamsConverter;
 import at.ac.tuwien.mns.mnsgeolocation.dto.converters.GeolocationResponseConverter;

@@ -1,7 +1,5 @@
 package at.ac.tuwien.mns.mnsgeolocation.dto.converters;
 
-import org.greenrobot.greendao.converter.PropertyConverter;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

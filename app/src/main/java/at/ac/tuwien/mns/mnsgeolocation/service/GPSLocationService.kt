@@ -61,18 +61,6 @@ class GPSLocationService : Service() {
 
     // converts to own location class and sends intent
     private fun publishResults(location: android.location.Location?) {
-
-//        // TODO remove next block, this is just for mocking if the last location is unknown
-//        if (location == null) {
-//            val mockLocation = Location(LocationManager.GPS_PROVIDER)
-//            mockLocation.latitude = 48.210033
-//            mockLocation.longitude = 16.363449
-//            val publishIntent = Intent(NOTIFICATION)
-//            publishIntent.putExtra(LOCATION, mockLocation)
-//            sendBroadcast(publishIntent)
-//            return
-//        }
-
         val publishIntent = Intent(NOTIFICATION)
         publishIntent.putExtra(LOCATION, Location(location) as Parcelable)
         publishIntent.putExtra(TYPE, TYPE_SUCCESS)

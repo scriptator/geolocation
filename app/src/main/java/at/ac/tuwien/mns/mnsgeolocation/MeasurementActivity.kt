@@ -1,11 +1,9 @@
 package at.ac.tuwien.mns.mnsgeolocation
 
-import android.app.Fragment
 import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.transition.Slide
-import android.util.Log
 import android.view.Gravity
 import android.view.MenuItem
 import at.ac.tuwien.mns.mnsgeolocation.dto.Measurement

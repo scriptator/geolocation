@@ -2,6 +2,7 @@ package at.ac.tuwien.mns.mnsgeolocation.dto;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import java.io.Serializable;
 
 /**
