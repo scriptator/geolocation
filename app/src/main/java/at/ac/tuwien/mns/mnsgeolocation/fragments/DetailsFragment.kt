@@ -1,44 +1,54 @@
 package at.ac.tuwien.mns.mnsgeolocation.fragments
 
+import android.annotation.SuppressLint
 import android.app.Fragment
 import android.content.Context
+import android.content.Intent
+import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.support.v7.app.AppCompatActivity
+import android.util.Log
+import android.view.*
 import android.widget.TextView
+import android.widget.Toast
+import at.ac.tuwien.mns.mnsgeolocation.BuildConfig
 import at.ac.tuwien.mns.mnsgeolocation.R
 import at.ac.tuwien.mns.mnsgeolocation.dto.Measurement
+import at.ac.tuwien.mns.mnsgeolocation.service.OwnFileProvider
 import at.ac.tuwien.mns.mnsgeolocation.util.DistanceUtils
-import org.w3c.dom.Text
+import java.io.File
+import java.io.IOException
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
+import java.util.*
+import android.view.MenuInflater
+import android.widget.Toolbar
 
 
-/**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [DetailsFragment.OnFragmentInteractionListener] interface
- * to handle interaction events.
- * Use the [DetailsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class DetailsFragment : Fragment() {
 
+    private val LOG_TAG = javaClass.canonicalName
+
     private var measurement: Measurement? = null
+    @SuppressLint("SimpleDateFormat")
     private val dateFormat = SimpleDateFormat("MM/dd/yyyy HH:mm:ss")
-    private var mListener: OnFragmentInteractionListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         if (arguments != null) {
             measurement = arguments.getParcelable(ARG_MEASUREMENT)
         }
     }
 
+
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater!!.inflate(R.layout.fragment_detail, container, false)
+
         val time = view.findViewById<TextView>(R.id.timeValue)
         val distance = view.findViewById<TextView>(R.id.distanceValue)
         val mlsPos = view.findViewById<TextView>(R.id.mlsPosValue)
@@ -81,31 +91,99 @@ class DetailsFragment : Fragment() {
         return view
     }
 
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            mListener = context
-        } else {
-            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener")
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_details, menu)
+        menu.findItem(R.id.action_delete).icon?.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
+        menu.findItem(R.id.action_mail).icon?.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_delete -> {
+                Toast.makeText(activity, "Delete selected", Toast.LENGTH_SHORT).show()
+                return true
+            }
+            R.id.action_mail -> {
+                // ----- email sending ------
+                val m = measurement!!
+                val cal = Calendar.getInstance()
+                cal.timeInMillis = m.timestamp
+                val localDate = SimpleDateFormat.getDateTimeInstance().format(cal.time)
+
+                val filename = "measurement_" + SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(cal.time) + ".txt"
+                val outputDir = activity.applicationContext.cacheDir // context being the Activity pointer
+                val outputFile = File(outputDir, filename)
+                if (!outputFile.exists()) {
+                    try {
+                        outputFile.createNewFile()
+                    } catch (e: IOException) {
+                        Log.e(LOG_TAG, "Could not create temp file for email attachment.")
+                    }
+                }
+
+                val glat = m.gpsLocation!!.lat
+                val glon = m.gpsLocation!!.lng
+                val mlat = m.mlsResponse!!.location!!.lat!!
+                val mlon = m.mlsResponse!!.location!!.lng!!
+                val distance = DistanceUtils.haversineDistance(glat, glon, mlat, mlon)
+
+                val b = StringBuilder()
+                b.append("GPS vs MLS measurement from ")
+                        .append(localDate)
+                        .append(":\n\n")
+                b.append("GPS:\n")
+                        .append("  Location: ")
+                        .append(glat)
+                        .append("°N / ")
+                        .append(glon)
+                        .append("°E\n")
+                        .append("  Accuracy: ")
+                        .append(m.gpsLocation?.accuracy)
+                        .append(" m\n\n")
+                b.append("MLS:\n")
+                        .append("  Location: ")
+                        .append(mlat)
+                        .append("°N / ")
+                        .append(mlon)
+                        .append("°E\n")
+                        .append("  Accuracy: ")
+                        .append(m.mlsResponse?.accuracy)
+                        .append(" m\n")
+                        .append("  Parameters:\n")
+                        .append("    Cell Towers:\n")
+                for (tower in m.mlsRequestParams!!.cellTowers) {
+                    b.append("      - ")
+                    b.append(tower)
+                    b.append("\n")
+                }
+                b.append("    WIFI Access Points:\n")
+                for (ap in m.mlsRequestParams!!.wifiAccessPoints) {
+                    b.append("      - ")
+                    b.append(ap)
+                    b.append("\n")
+                }
+                b.append("\nDistance: ")
+                        .append(distance)
+                        .append(" m")
+
+                outputFile.writeText(b.toString())
+
+                val emailIntent = Intent(Intent.ACTION_SEND)
+                emailIntent.type = "text/plain"
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "MNSMeasurement at " + localDate)
+                emailIntent.putExtra(Intent.EXTRA_TEXT, "Hello!\n\nThis email holds your measurement from " + localDate + " as an attachment.")
+                // set the attachment, share via own file provider
+                emailIntent.putExtra(Intent.EXTRA_STREAM, OwnFileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID, outputFile))
+                // give temporary permission to the folder containing the email attachment
+                emailIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                startActivity(emailIntent)
+                return true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        mListener = null
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson [Communicating with Other Fragments](http://developer.android.com/training/basics/fragments/communicating.html) for more information.
-     */
-    interface OnFragmentInteractionListener {
-        fun onFragmentInteraction(uri: Uri)
+        return false
     }
 
     companion object {

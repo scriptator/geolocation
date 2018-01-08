@@ -24,9 +24,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".DetailsActivity"
-            android:parentActivityName=".MeasurementActivity"/>
 
         <service android:name="at.ac.tuwien.mns.mnsgeolocation.service.GPSLocationService" />
         <service android:name="at.ac.tuwien.mns.mnsgeolocation.service.MLSScannerService" />
