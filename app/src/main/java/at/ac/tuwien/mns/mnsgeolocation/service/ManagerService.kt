@@ -95,7 +95,9 @@ class ManagerService : Service() {
     override fun onDestroy() {
         unregisterReceiver(receiverGPS)
         unregisterReceiver(receiverMLS)
-        stopService(gpsIntent)
+        if (gpsIntent != null) {
+            stopService(gpsIntent)
+        }
         super.onDestroy()
     }
 

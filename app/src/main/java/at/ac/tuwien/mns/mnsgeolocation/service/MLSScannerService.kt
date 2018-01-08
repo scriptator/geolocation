@@ -46,7 +46,7 @@ class MLSScannerService : IntentService("MLSScannerService") {
             request.wifiAccessPoints = wifiAccessPoints
             request.cellTowers = cellTowers
             publishResults(request)
-        //}
+        }
     }
 
 
@@ -84,7 +84,7 @@ class MLSScannerService : IntentService("MLSScannerService") {
 
     private fun publishResults(geolocationRequestParams: GeolocationRequestParams) {
         val publishIntent = Intent(NOTIFICATION)
-        publishIntent.putExtra(MLS_REQUEST, geolocationRequestParams)
+        publishIntent.putExtra(MLS_REQUEST, geolocationRequestParams as Parcelable)
         publishIntent.putExtra(TYPE, TYPE_SUCCESS)
         sendBroadcast(publishIntent)
     }
