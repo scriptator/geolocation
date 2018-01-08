@@ -25,8 +25,9 @@ class MeasurementActivity : AppCompatActivity(), MeasurementsListFragment.OnMeas
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_measurement_list)
         setSupportActionBar(toolbar)
-        measurementListFragment = MeasurementsListFragment()
-        if (savedInstanceState == null) {
+        measurementListFragment = fragmentManager.findFragmentByTag(LIST_TAG) as? MeasurementsListFragment
+        if (measurementListFragment == null) {
+            measurementListFragment = MeasurementsListFragment()
             fragmentManager.beginTransaction().add(R.id.fragmentContainer, measurementListFragment, LIST_TAG).commit()
         }
     }
