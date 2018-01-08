@@ -21,7 +21,6 @@ android {
     }
 }
 
-
 greendao {
     schemaVersion 2
     targetGenDir 'src/main/java'
@@ -45,4 +44,6 @@ dependencies {
     compile 'net.zetetic:android-database-sqlcipher:3.5.9'
     compile 'org.greenrobot:greendao:3.2.2'
     implementation 'com.google.android.gms:play-services-maps:11.8.0'
+    androidTestCompile 'org.mockito:mockito-core:2.13.0'
+    androidTestCompile 'com.schibsted.spain:barista:2.2.0'
 }

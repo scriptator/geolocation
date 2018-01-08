@@ -219,7 +219,6 @@ class MeasurementsListFragment : Fragment(), AdapterView.OnItemClickListener {
         }
     }
 
-    @SuppressLint("SimpleDateFormat")
     private fun checkMeasurementCompleted() {
         if (measuring
                 && lastGPSLocation != null
@@ -242,6 +241,7 @@ class MeasurementsListFragment : Fragment(), AdapterView.OnItemClickListener {
             if (listAdapter != null) {
                 listAdapter?.notifyDataSetChanged()
             }
+            mCallback?.onMeasurementSelected(m)
             Log.i(LOG_TAG, "Measurement complete: " + currentMeasurement)
         }
     }

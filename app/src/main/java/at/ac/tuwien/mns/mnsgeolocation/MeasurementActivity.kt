@@ -52,8 +52,9 @@ class MeasurementActivity : AppCompatActivity(), MeasurementsListFragment.OnMeas
     }
 
     override fun onMeasurementDeleted(measurement: Measurement?) {
-        if (measurementListFragment?.removeItem(measurement) == true)
+        if (measurementListFragment?.removeItem(measurement) == true) {
             backToList()
+        }
     }
 
     private fun backToList() {

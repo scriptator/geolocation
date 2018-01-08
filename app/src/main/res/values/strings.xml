@@ -3,6 +3,6 @@
     <string name="action_settings">Settings</string>
     <string name="action_delete">Delete</string>
     <string name="action_mail">Mail</string>
-    <string name="mls">Mozilla Locations Service</string>
+    <string name="mls">Mozilla Location Service</string>
     <string name="gps">Global Positioning System</string>
 </resources>
