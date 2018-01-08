@@ -61,7 +61,7 @@ class DetailsFragment : Fragment() {
             for (tower in measurement?.mlsRequestParams!!.cellTowers) {
                 b.append("CID: ").append(tower.cellId).append(" Strength: ").append(tower.signalStrength).append("\n")
             }
-            b.delete(b.length - 2, b.length)
+            b.delete(b.length - 1, b.length)
         } else {
             b.append("No cell tower in range.")
         }
@@ -71,7 +71,7 @@ class DetailsFragment : Fragment() {
             for (ap in measurement?.mlsRequestParams!!.wifiAccessPoints) {
                 b.append("MAC: ").append(ap.macAddress).append(" Strength: ").append(ap.signalStrength).append("\n")
             }
-            b.delete(b.length - 2, b.length)
+            b.delete(b.length - 1, b.length)
         } else {
             b.append("No WiFi access point in range.")
         }

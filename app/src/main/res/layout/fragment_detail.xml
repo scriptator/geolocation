@@ -40,6 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="48dp"
+            android:paddingBottom="8dp"
             android:gravity="center_vertical"
             android:descendantFocusability="blocksDescendants">
 
@@ -65,8 +66,7 @@
             android:id="@+id/divider"
             android:layout_width="match_parent"
             android:background="@android:color/darker_gray"
-            android:layout_height="2dp"
-            android:paddingTop="12dp"/>
+            android:layout_height="2dp" />
 
         <TextView
             android:id="@+id/mls"
@@ -135,6 +135,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="48dp"
+            android:paddingBottom="8dp"
             android:gravity="center_vertical"
             android:descendantFocusability="blocksDescendants">
 
@@ -160,8 +161,7 @@
             android:id="@+id/divider2"
             android:layout_width="match_parent"
             android:background="@android:color/darker_gray"
-            android:layout_height="2dp"
-            android:paddingTop="12dp"/>
+            android:layout_height="2dp" />
 
         <TextView
             android:id="@+id/gps"
