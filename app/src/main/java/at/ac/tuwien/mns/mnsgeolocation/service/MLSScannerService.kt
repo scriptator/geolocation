@@ -27,8 +27,8 @@ class MLSScannerService : IntentService("MLSScannerService") {
         val TYPE_ERR: String = "type_error"
         val ERR_MSG: String = "err_msg"
         val TYPE_SUCCESS: String = "type_success"
-        val NO_WIFI_ACCESS_POINTS_FOUND: String = "No access points were found or Wifi is disabled!"
-        val NO_TOWERS_FOUND: String = "No cell towers were found!"
+        val NO_WIFI_ACCESS_POINTS_FOUND: String = "Wifi is disabled or there are no access points!"
+        val NO_TOWERS_FOUND: String = "No cell towers found!"
         val MLS_REQUEST: String = "mls_request"
     }
 
@@ -93,8 +93,7 @@ class MLSScannerService : IntentService("MLSScannerService") {
         return list.filter { item ->
             !item.SSID.endsWith("_nomap")
         }.map { item ->
-            val age = CalculateUtil.calculateAge(item.timestamp, TimeUnit.MICROSECONDS)
-            WifiAccessPoint(item.BSSID, CalculateUtil.getChannelFromFrequency(item.frequency), item.frequency, item.level, null, age)
+            WifiAccessPoint(item.BSSID, CalculateUtil.getChannelFromFrequency(item.frequency), item.frequency, item.level, null, null)
         }
     }
 
@@ -141,7 +140,6 @@ class MLSScannerService : IntentService("MLSScannerService") {
             cellSignalStrength = cellInfo.cellSignalStrength
             radio = "gsm"
         }
-        val age = CalculateUtil.calculateAge(cellInfo.timeStamp, TimeUnit.NANOSECONDS)
-        return CellTower(mcc, mnc, lac, cid, radio, cellSignalStrength?.dbm, age, psc, ta)
+        return CellTower(mcc, mnc, lac, cid, radio, cellSignalStrength?.dbm, null, psc, ta)
     }
 }

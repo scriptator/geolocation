@@ -1,43 +1,36 @@
 package at.ac.tuwien.mns.mnsgeolocation
 
 import android.annotation.SuppressLint
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.widget.ListView
-import android.widget.Toast
-import at.ac.tuwien.mns.mnsgeolocation.dto.GeolocationRequestParams
-import at.ac.tuwien.mns.mnsgeolocation.fragments.DetailsFragment
-import at.ac.tuwien.mns.mnsgeolocation.service.*
-import at.ac.tuwien.mns.mnsgeolocation.util.PermissionUtil
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_measurement_list.*
-import android.content.ComponentName
 import android.os.IBinder
-import android.content.ServiceConnection
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
-import at.ac.tuwien.mns.mnsgeolocation.dto.Location
 import android.widget.AdapterView
+import android.widget.ListView
+import android.widget.Toast
 import at.ac.tuwien.mns.mnsgeolocation.adapters.MeasurementListAdapter
+import at.ac.tuwien.mns.mnsgeolocation.dto.GeolocationRequestParams
+import at.ac.tuwien.mns.mnsgeolocation.dto.Location
 import at.ac.tuwien.mns.mnsgeolocation.dto.Measurement
 import at.ac.tuwien.mns.mnsgeolocation.dto.MeasurementDao
+import at.ac.tuwien.mns.mnsgeolocation.fragments.DetailsFragment
+import at.ac.tuwien.mns.mnsgeolocation.service.MLSLocationService
+import at.ac.tuwien.mns.mnsgeolocation.service.ManagerService
+import at.ac.tuwien.mns.mnsgeolocation.service.ServiceFactory
 import at.ac.tuwien.mns.mnsgeolocation.util.DisplayUtil
-import at.ac.tuwien.mns.mnsgeolocation.util.DistanceUtils
+import at.ac.tuwien.mns.mnsgeolocation.util.PermissionUtil
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import java.io.File
-import java.io.IOException
-import java.text.SimpleDateFormat
+import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_measurement_list.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class MeasurementActivity : AppCompatActivity(), AdapterView.OnItemClickListener  {
+class MeasurementActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
 
     private val LOG_TAG = javaClass.canonicalName
 
@@ -68,14 +61,19 @@ class MeasurementActivity : AppCompatActivity(), AdapterView.OnItemClickListener
                 ManagerService.NOTIFICATION_TYPE_LOCATION.equals(type) -> processGPSLocationMsg(intent?.extras?.getParcelable<Location>(ManagerService.CONTENT))
                 ManagerService.NOTIFICATION_TYPE_MLS_REQUEST.equals(type) -> conductMLSLocationRequest(intent?.extras?.getParcelable<GeolocationRequestParams>(ManagerService.CONTENT))
                 ManagerService.NOTIFICATION_TYPE_MLS_ERR.equals(type) || ManagerService.NOTIFICATION_TYPE_LOCATION_ERR.equals(type) -> {
-                    val errMsg = intent?.extras?.getString(ManagerService.CONTENT)
-                    if (errMsg != null) {
-                        showToast(errMsg, Toast.LENGTH_LONG)
-                    } else {
-                        showToast("An error occurred.", Toast.LENGTH_LONG)
-                    }
+                    showErr(intent)
+                    endMeasurement()
                 }
                 ManagerService.NOTIFICATION_TYPE_PERM_FAILED.equals(type) -> PermissionUtil.requestRequiredPermissions(this@MeasurementActivity)
+            }
+        }
+
+        private fun showErr(intent: Intent?) {
+            val errMsg = intent?.extras?.getString(ManagerService.CONTENT)
+            if (errMsg != null) {
+                showToast(errMsg, Toast.LENGTH_LONG)
+            } else {
+                showToast("An error occurred.", Toast.LENGTH_LONG)
             }
         }
     }
@@ -190,7 +188,7 @@ class MeasurementActivity : AppCompatActivity(), AdapterView.OnItemClickListener
         this.measurmentTimeout?.dispose()
 
         this.fab.setImageResource(R.drawable.ic_add_black_24dp)
-        this.fab.setOnClickListener {this.startMeasurement()}
+        this.fab.setOnClickListener { this.startMeasurement() }
     }
 
     private fun processGPSLocationMsg(location: Location?) {
