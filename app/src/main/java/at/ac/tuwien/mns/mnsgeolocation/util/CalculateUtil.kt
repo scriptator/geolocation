@@ -13,7 +13,6 @@ class CalculateUtil {
                 5620 to 124, 5640 to 128, 5660 to 132, 5680 to 136, 5700 to 140, 5745 to 149,
                 5765 to 153, 5785 to 157, 5805 to 161, 5825 to 165)
 
-        // TODO 5 GhZ channels
         fun getChannelFromFrequency(frequency: Int): Int? {
             return channelsFrequencyMap.get(frequency)
         }

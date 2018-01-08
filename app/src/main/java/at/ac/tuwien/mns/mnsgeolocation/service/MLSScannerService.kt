@@ -13,7 +13,6 @@ import at.ac.tuwien.mns.mnsgeolocation.dto.GeolocationRequestParams
 import at.ac.tuwien.mns.mnsgeolocation.dto.WifiAccessPoint
 import at.ac.tuwien.mns.mnsgeolocation.util.CalculateUtil
 import at.ac.tuwien.mns.mnsgeolocation.util.PermissionUtil
-import java.util.concurrent.TimeUnit
 
 
 /**
@@ -27,20 +26,20 @@ class MLSScannerService : IntentService("MLSScannerService") {
         val TYPE_ERR: String = "type_error"
         val ERR_MSG: String = "err_msg"
         val TYPE_SUCCESS: String = "type_success"
-        val NO_WIFI_ACCESS_POINTS_FOUND: String = "Wifi is disabled or there are no access points!"
-        val NO_TOWERS_FOUND: String = "No cell towers found!"
+        val WIFI_DISABLED: String = "Wifi is disabled!"
+        val NO_WIFI_NO_TOWERS_FOUND: String = "No wifi access points and no cell towers found!"
         val MLS_REQUEST: String = "mls_request"
     }
 
     override fun onHandleIntent(p0: Intent?) {
         val wifiAccessPoints = scanForWifiAccessPoints()
-        if (wifiAccessPoints.isEmpty()) {
-            publishErr(NO_WIFI_ACCESS_POINTS_FOUND)
+        if (wifiAccessPoints == null) {
+            publishErr(WIFI_DISABLED)
             return
         }
         val cellTowers = scanForCellTowers()
-        if (cellTowers.isEmpty()) {
-            publishErr(NO_TOWERS_FOUND)
+        if (cellTowers.isEmpty() && wifiAccessPoints.isEmpty()) {
+            publishErr(NO_WIFI_NO_TOWERS_FOUND)
         } else {
             val request = GeolocationRequestParams()
             request.wifiAccessPoints = wifiAccessPoints
@@ -61,18 +60,16 @@ class MLSScannerService : IntentService("MLSScannerService") {
     }
 
     @SuppressLint("MissingPermission")
-    private fun scanForWifiAccessPoints(): List<WifiAccessPoint> {
+    private fun scanForWifiAccessPoints(): List<WifiAccessPoint>? {
         val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val wifiGranted = PermissionUtil.wifiPermissionGranted(this)
         if (!PermissionUtil.wifiEnabled(this)) {
-            return emptyList()
+            return null
         }
         if (wifiGranted) {
             return processScanResults(wifiManager.scanResults)
-        } else {
-            println("Permission denied, something went wrong, permission was already checked.")
         }
-        return emptyList()
+        return null
     }
 
     private fun publishErr(err: String?) {
