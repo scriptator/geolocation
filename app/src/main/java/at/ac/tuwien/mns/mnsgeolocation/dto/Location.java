@@ -17,6 +17,9 @@ public class Location implements Parcelable, Serializable {
 
     public Location(android.location.Location other) {
         this();
+        if (other == null) {
+            return;
+        }
 
         this.lat = other.getLatitude();
         this.lng = other.getLongitude();
