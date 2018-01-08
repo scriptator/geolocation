@@ -6,10 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
-import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.*
 import android.widget.TextView
@@ -25,7 +22,8 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import android.view.MenuInflater
-import android.widget.Toolbar
+import at.ac.tuwien.mns.mnsgeolocation.Application
+import at.ac.tuwien.mns.mnsgeolocation.dto.MeasurementDao
 
 
 class DetailsFragment : Fragment() {
@@ -33,8 +31,11 @@ class DetailsFragment : Fragment() {
     private val LOG_TAG = javaClass.canonicalName
 
     private var measurement: Measurement? = null
+    private var measurementDao: MeasurementDao? = null
     @SuppressLint("SimpleDateFormat")
     private val dateFormat = SimpleDateFormat("MM/dd/yyyy HH:mm:ss")
+
+    private var mCallback: OnMeasurementDeletedListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,8 +44,6 @@ class DetailsFragment : Fragment() {
             measurement = arguments.getParcelable(ARG_MEASUREMENT)
         }
     }
-
-
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater!!.inflate(R.layout.fragment_detail, container, false)
@@ -101,7 +100,7 @@ class DetailsFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_delete -> {
-                Toast.makeText(activity, "Delete selected", Toast.LENGTH_SHORT).show()
+                mCallback?.onMeasurementDeleted(measurement)
                 return true
             }
             R.id.action_mail -> {
@@ -184,6 +183,24 @@ class DetailsFragment : Fragment() {
             else -> super.onOptionsItemSelected(item)
         }
         return false
+    }
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        if (context is OnMeasurementDeletedListener) {
+            mCallback = context
+        } else {
+            throw RuntimeException(context!!.toString() + " must implement OnMeasurementDeletedListener")
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        mCallback = null
+    }
+
+    interface OnMeasurementDeletedListener {
+        fun onMeasurementDeleted(measurement: Measurement?)
     }
 
     companion object {

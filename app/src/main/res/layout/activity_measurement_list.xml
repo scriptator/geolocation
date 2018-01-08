@@ -21,18 +21,18 @@
     </android.support.design.widget.AppBarLayout>
 
     <FrameLayout
-        android:id="@+id/fragment"
+        android:id="@+id/fragmentContainer"
         android:layout_weight="1"
         android:layout_marginTop="?attr/actionBarSize"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <fragment
+        <!--<fragment
             class="at.ac.tuwien.mns.mnsgeolocation.fragments.MeasurementsListFragment"
             android:id="@+id/measurementList"
             android:layout_weight="1"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent" />-->
 
     </FrameLayout>
 

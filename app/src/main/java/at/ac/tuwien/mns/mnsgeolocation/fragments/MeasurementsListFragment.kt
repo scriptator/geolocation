@@ -153,6 +153,19 @@ class MeasurementsListFragment : Fragment(), AdapterView.OnItemClickListener {
         activity.stopService(managerServiceIntent)
     }
 
+    fun removeItem(measurement: Measurement?) : Boolean {
+        val daoSession = (activity.application as Application).daoSession
+        if (daoSession != null) {
+            measurementDao = daoSession.measurementDao
+            measurementDao?.delete(measurement)
+            listItems.remove(measurement)
+            showToast("Measurement deleted", Toast.LENGTH_SHORT)
+            return true
+        }
+        showToast("Can't delete measurement", Toast.LENGTH_SHORT)
+        return false
+    }
+
     private fun showToast(text: String, duration: Int) {
         Toast.makeText(activity, text, duration).show()
     }
