@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Parcelable
+import at.ac.tuwien.mns.mnsgeolocation.Application
 import at.ac.tuwien.mns.mnsgeolocation.dto.Location
 import at.ac.tuwien.mns.mnsgeolocation.util.PermissionUtil
 
@@ -31,7 +32,7 @@ class GPSLocationService : Service() {
 
     @SuppressLint("MissingPermission")
     private val gpsStarter = Runnable {
-        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val locationManager = (application as Application).managerUtil.getLocationManager()
         val listener = GPSLocationListener()
         if (!PermissionUtil.gpsEnabled(this)) {
             publishErr(GPS_DISABLED)

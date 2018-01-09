@@ -2,6 +2,7 @@ package at.ac.tuwien.mns.mnsgeolocation;
 
 import at.ac.tuwien.mns.mnsgeolocation.dto.DaoSession;
 import at.ac.tuwien.mns.mnsgeolocation.util.DbUtil;
+import at.ac.tuwien.mns.mnsgeolocation.util.ManagerUtil;
 
 /**
  * Created by johannesvass on 05.01.18.
@@ -9,13 +10,23 @@ import at.ac.tuwien.mns.mnsgeolocation.util.DbUtil;
 public class Application extends android.app.Application {
 
     private DbUtil dbUtil;
+    private ManagerUtil managerUtil;
 
     public Application() {
         dbUtil = new DbUtil();
+        managerUtil = new ManagerUtil(this);
     }
 
     public void setDbUtil(DbUtil dbUtil) {
         this.dbUtil = dbUtil;
+    }
+
+    public ManagerUtil getManagerUtil() {
+        return managerUtil;
+    }
+
+    public void setManagerUtil(ManagerUtil managerUtil) {
+        this.managerUtil = managerUtil;
     }
 
     public DaoSession getDaoSession() {

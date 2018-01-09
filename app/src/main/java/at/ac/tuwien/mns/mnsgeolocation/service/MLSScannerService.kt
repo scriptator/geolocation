@@ -2,12 +2,11 @@ package at.ac.tuwien.mns.mnsgeolocation.service
 
 import android.annotation.SuppressLint
 import android.app.IntentService
-import android.content.Context
 import android.content.Intent
 import android.net.wifi.ScanResult
-import android.net.wifi.WifiManager
 import android.os.Parcelable
 import android.telephony.*
+import at.ac.tuwien.mns.mnsgeolocation.Application
 import at.ac.tuwien.mns.mnsgeolocation.dto.CellTower
 import at.ac.tuwien.mns.mnsgeolocation.dto.GeolocationRequestParams
 import at.ac.tuwien.mns.mnsgeolocation.dto.WifiAccessPoint
@@ -51,7 +50,7 @@ class MLSScannerService : IntentService("MLSScannerService") {
 
     @SuppressLint("MissingPermission")
     private fun scanForCellTowers(): List<CellTower> {
-        val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        val telephonyManager = (application as Application).managerUtil.getTelephonyManager()
         val locationGranted = PermissionUtil.locationPermissionGranted(this)
         if (locationGranted) {
             return processCellInfos(telephonyManager.allCellInfo)
@@ -61,7 +60,7 @@ class MLSScannerService : IntentService("MLSScannerService") {
 
     @SuppressLint("MissingPermission")
     private fun scanForWifiAccessPoints(): List<WifiAccessPoint>? {
-        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val wifiManager = (application as Application).managerUtil.getWifiManager()
         val wifiGranted = PermissionUtil.wifiPermissionGranted(this)
         if (!PermissionUtil.wifiEnabled(this)) {
             return null

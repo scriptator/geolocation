@@ -1,11 +1,19 @@
 package at.ac.tuwien.mns.mnsgeolocation.runner;
 
 import android.app.Application;
+import android.content.Context;
 import android.location.LocationManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnitRunner;
+import android.telephony.CellInfo;
+import android.telephony.CellInfoWcdma;
+import android.telephony.TelephonyManager;
 
 import org.greenrobot.greendao.query.Query;
 import org.greenrobot.greendao.query.QueryBuilder;
+import org.jetbrains.annotations.NotNull;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -24,6 +32,7 @@ import at.ac.tuwien.mns.mnsgeolocation.dto.Measurement;
 import at.ac.tuwien.mns.mnsgeolocation.dto.MeasurementDao;
 import at.ac.tuwien.mns.mnsgeolocation.dto.WifiAccessPoint;
 import at.ac.tuwien.mns.mnsgeolocation.util.DbUtil;
+import at.ac.tuwien.mns.mnsgeolocation.util.ManagerUtil;
 
 import static org.mockito.Mockito.when;
 
@@ -41,14 +50,27 @@ public class SetupTestRunner extends AndroidJUnitRunner {
     public static final long DATE = 1515539026742L;
     public static final List<Measurement> MEASUREMENT_LIST;
     public static final int MEASUREMENT_LIST_SIZE = 20;
+    private static final android.location.Location GPS_LOCATION;
+    private static final List<CellInfo> MOCKED_CELL_INFO_LIST;
+    private static final List<ScanResult> MOCKED_WIFI_SCAN_RESULT;
 
     static {
+        GPS_LOCATION = createMockLocation(LAT_1, LON_1);
+
         List<Measurement> modifiableList = new ArrayList<>();
         for(Integer i = 0; i < MEASUREMENT_LIST_SIZE; i++) {
             modifiableList.add(new Measurement(i.longValue(), DATE+i*60000, createMockLocation
                     (LAT_1+i*0.005, LON_1+i*0.005), createMockMLSRequest(), createMockResponse(LAT_2+i*0.005, LON_2+i*0.005, ACCURACY)));
         }
         MEASUREMENT_LIST = Collections.unmodifiableList(modifiableList);
+
+        List<CellInfo> modifiableCIList = new ArrayList<>();
+        // todo somehow create cellinfowcdma objects? reflection? magic?
+        MOCKED_CELL_INFO_LIST = Collections.unmodifiableList(modifiableCIList);
+
+        List<ScanResult> modifiableSCList = new ArrayList<>();
+        // todo somehow create scanresult objects? reflection? magic?
+        MOCKED_WIFI_SCAN_RESULT = Collections.unmodifiableList(modifiableSCList);
     }
 
     @Mock
@@ -59,10 +81,23 @@ public class SetupTestRunner extends AndroidJUnitRunner {
     private QueryBuilder<Measurement> measurementQueryBuilder;
     @Mock
     private Query<Measurement> measurementQuery;
+    @Mock
+    private TelephonyManager telephonyManager;
+    @Mock
+    private WifiManager wifiManager;
+    @Mock
+    private LocationManager locationManager;
 
     @Override
     public void callApplicationOnCreate(Application app) {
         MockitoAnnotations.initMocks(this);
+
+        when(telephonyManager.getAllCellInfo()).thenReturn(MOCKED_CELL_INFO_LIST);
+        when(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)).thenReturn
+                (GPS_LOCATION);
+        when(wifiManager.isWifiEnabled()).thenReturn(true);
+        when(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)).thenReturn(true);
+        when(wifiManager.getScanResults()).thenReturn(MOCKED_WIFI_SCAN_RESULT);
 
         when(daoSession.getMeasurementDao()).thenReturn(measurementDao);
         when(measurementDao.queryBuilder()).thenReturn(measurementQueryBuilder);
@@ -71,8 +106,10 @@ public class SetupTestRunner extends AndroidJUnitRunner {
         when(measurementQueryBuilder.build()).thenReturn(measurementQuery);
         when(measurementQuery.list()).thenReturn(MEASUREMENT_LIST);
 
-        if (app instanceof at.ac.tuwien.mns.mnsgeolocation.Application)
-            ((at.ac.tuwien.mns.mnsgeolocation.Application) app).setDbUtil(new DbUtil() {
+        if (app instanceof at.ac.tuwien.mns.mnsgeolocation.Application) {
+            at.ac.tuwien.mns.mnsgeolocation.Application mApp = (at.ac.tuwien.mns.mnsgeolocation
+                    .Application) app;
+            mApp.setDbUtil(new DbUtil() {
                 @Override
                 public DaoSession getDaoSession() {
                     return daoSession;
@@ -82,16 +119,36 @@ public class SetupTestRunner extends AndroidJUnitRunner {
                 public void initDb(Application context) {
                 }
             });
+            mApp.setManagerUtil(new ManagerUtil(app) {
+                @NotNull
+                @Override
+                public TelephonyManager getTelephonyManager() {
+                    return telephonyManager;
+                }
+
+                @NotNull
+                @Override
+                public WifiManager getWifiManager() {
+                    return wifiManager;
+                }
+
+                @NotNull
+                @Override
+                public LocationManager getLocationManager() {
+                    return locationManager;
+                }
+            });
+        }
         super.callApplicationOnCreate(app);
     }
 
-    private static Location createMockLocation(double lat, double lon) {
+    private static android.location.Location createMockLocation(double lat, double lon) {
         android.location.Location location = new android.location.Location(LocationManager
                 .GPS_PROVIDER);
         location.setLatitude(lat);
         location.setLongitude(lon);
         location.setAccuracy(ACCURACY);
-        return new Location(location);
+        return location;
     }
 
     private static GeolocationRequestParams createMockMLSRequest() {
