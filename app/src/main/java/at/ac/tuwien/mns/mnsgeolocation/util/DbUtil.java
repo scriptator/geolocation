@@ -82,17 +82,10 @@ public class DbUtil {
             Log.i(LOG_TAG, "Database key does not exist, creating entry in keystore.");
             KeyPairGenerator kpg = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA,
                     "AndroidKeyStore");
-            AlgorithmParameterSpec spec;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                spec = new KeyGenParameterSpec.Builder(APPLICATION_KEY_ALIAS, KeyProperties
+            AlgorithmParameterSpec spec  = new KeyGenParameterSpec.Builder(APPLICATION_KEY_ALIAS, KeyProperties
                         .PURPOSE_DECRYPT).setDigests(KeyProperties.DIGEST_SHA256, KeyProperties
                         .DIGEST_SHA512).setEncryptionPaddings(KeyProperties
                         .ENCRYPTION_PADDING_RSA_PKCS1).build();
-            } else {
-                // TODO verify that it works
-                spec = new KeyPairGeneratorSpec.Builder(context).setAlias(APPLICATION_KEY_ALIAS)
-                        .build();
-            }
             kpg.initialize(spec);
             kpg.generateKeyPair();
         }
