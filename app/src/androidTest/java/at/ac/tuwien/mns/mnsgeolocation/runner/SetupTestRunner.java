@@ -58,9 +58,11 @@ public class SetupTestRunner extends AndroidJUnitRunner {
         GPS_LOCATION = createMockLocation(LAT_1, LON_1);
 
         List<Measurement> modifiableList = new ArrayList<>();
-        for(Integer i = 0; i < MEASUREMENT_LIST_SIZE; i++) {
-            modifiableList.add(new Measurement(i.longValue(), DATE+i*60000, createMockLocation
-                    (LAT_1+i*0.005, LON_1+i*0.005), createMockMLSRequest(), createMockResponse(LAT_2+i*0.005, LON_2+i*0.005, ACCURACY)));
+        for (Integer i = 0; i < MEASUREMENT_LIST_SIZE; i++) {
+            modifiableList.add(new Measurement(i.longValue(), DATE + i * 60000, new Location
+                    (createMockLocation(LAT_1 + i * 0.005, LON_1 + i * 0.005)),
+                    createMockMLSRequest(), createMockResponse(LAT_2 + i * 0.005, LON_2 + i *
+                    0.005, ACCURACY)));
         }
         MEASUREMENT_LIST = Collections.unmodifiableList(modifiableList);
 
@@ -170,7 +172,7 @@ public class SetupTestRunner extends AndroidJUnitRunner {
 
     private static GeolocationResponse createMockResponse(double lat, double lon, float accuracy) {
         GeolocationResponse response = new GeolocationResponse();
-        response.setLocation(createMockLocation(lat, lon));
+        response.setLocation(new Location(createMockLocation(lat, lon)));
         response.setAccuracy(accuracy);
         return response;
     }
