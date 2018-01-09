@@ -28,7 +28,6 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import net.sqlcipher.database.SQLiteException
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -210,8 +209,8 @@ class MeasurementsListFragment : Fragment(), AdapterView.OnItemClickListener {
     }
 
     private fun processGPSLocationMsg(location: Location?) {
-        if (location == null) {
-            showToast("Last location unknown", Toast.LENGTH_LONG)
+        if (location == null || location.lat == null || location.lng == null) {
+            showToast("Location unknown", Toast.LENGTH_LONG)
         } else {
             Log.i(LOG_TAG, "GPS location update received")
             this.lastGPSLocation = location

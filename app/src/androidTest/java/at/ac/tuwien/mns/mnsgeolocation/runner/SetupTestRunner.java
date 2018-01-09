@@ -17,11 +17,9 @@ import org.jetbrains.annotations.NotNull;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.security.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 import at.ac.tuwien.mns.mnsgeolocation.dto.CellTower;
 import at.ac.tuwien.mns.mnsgeolocation.dto.DaoSession;

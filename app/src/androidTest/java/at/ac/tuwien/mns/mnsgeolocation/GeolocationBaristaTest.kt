@@ -7,7 +7,6 @@ import at.ac.tuwien.mns.mnsgeolocation.runner.SetupTestRunner
 import at.ac.tuwien.mns.mnsgeolocation.util.DistanceUtils
 import com.schibsted.spain.barista.assertion.BaristaVisibilityAssertions.assertContains
 import com.schibsted.spain.barista.interaction.BaristaListInteractions.clickListItem
-import com.schibsted.spain.barista.interaction.BaristaSleepInteractions.sleep
 import com.schibsted.spain.barista.interaction.BaristaClickInteractions.clickOn
 import com.schibsted.spain.barista.interaction.PermissionGranter
 import com.schibsted.spain.barista.rule.BaristaRule
@@ -17,15 +16,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
-import java.util.*
 import android.support.test.InstrumentationRegistry
-import android.support.test.espresso.Espresso.onData
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.assertion.ViewAssertions
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import com.schibsted.spain.barista.interaction.BaristaListInteractions.scrollListToPosition
 import com.schibsted.spain.barista.interaction.BaristaMenuClickInteractions.clickMenu
-import org.hamcrest.CoreMatchers.anything
 
 
 /**
