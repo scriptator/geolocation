@@ -91,12 +91,12 @@ class MeasurementsListFragment : Fragment(), AdapterView.OnItemClickListener {
         startManagerService()
 
         // get the DAO
-        val daoSession = (activity.application as Application).getDaoSession();
+        val daoSession = (activity.application as Application).daoSession
         if (daoSession != null) {
             measurementDao = daoSession.measurementDao
 
             // query all notes, sorted a-z by their text
-            val measurementsQuery = measurementDao!!.queryBuilder().orderAsc(MeasurementDao.Properties.Id).build();
+            val measurementsQuery = measurementDao!!.queryBuilder().orderAsc(MeasurementDao.Properties.Id).build()
             val measurements: List<Measurement> = measurementsQuery.list()
             listItems.addAll(measurements)
         }
