@@ -11,7 +11,7 @@ android {
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "at.ac.tuwien.mns.mnsgeolocation.runner.SetupTestRunner"
     }
     buildTypes {
         release {
@@ -45,5 +45,6 @@ dependencies {
     compile 'org.greenrobot:greendao:3.2.2'
     implementation 'com.google.android.gms:play-services-maps:11.8.0'
     androidTestCompile 'org.mockito:mockito-core:2.13.0'
+    androidTestCompile 'org.mockito:mockito-android:2.13.0'
     androidTestCompile 'com.schibsted.spain:barista:2.2.0'
 }

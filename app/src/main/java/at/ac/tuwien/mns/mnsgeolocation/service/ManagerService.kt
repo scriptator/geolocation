@@ -16,7 +16,7 @@ import at.ac.tuwien.mns.mnsgeolocation.util.PermissionUtil
 /**
  * Created by Marton Bartal.
  */
-class ManagerService : Service() {
+open class ManagerService : Service() {
 
     var gpsIntent: Intent? = null
 

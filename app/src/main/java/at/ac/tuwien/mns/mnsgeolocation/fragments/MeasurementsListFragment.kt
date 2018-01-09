@@ -28,6 +28,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import net.sqlcipher.database.SQLiteException
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -233,8 +234,12 @@ class MeasurementsListFragment : Fragment(), AdapterView.OnItemClickListener {
             // use the last known GPS location for the measurement
             m.gpsLocation = lastGPSLocation
 
-            // insert it into the database
-            m.id = this.measurementDao?.insert(m)
+//            try {
+                // insert it into the database
+                m.id = this.measurementDao?.insert(m)
+//            } catch (e : SQLiteException) {
+//                println(e.message)
+//            }
 
             listItems.add(m)
             if (listAdapter != null) {

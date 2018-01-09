@@ -10,7 +10,10 @@ public final class GeolocationResponse implements Serializable, Parcelable {
     private Float accuracy;
     private String fallback;
 
-    protected GeolocationResponse(Parcel in) {
+    public GeolocationResponse() {
+    }
+
+    private GeolocationResponse(Parcel in) {
         location = in.readParcelable(Location.class.getClassLoader());
         if (in.readByte() == 0) {
             accuracy = null;
@@ -75,10 +78,7 @@ public final class GeolocationResponse implements Serializable, Parcelable {
 
     @Override
     public String toString() {
-        return "GeolocationResponse{" +
-                "location=" + location +
-                ", accuracy=" + accuracy +
-                ", fallback='" + fallback + '\'' +
-                '}';
+        return "GeolocationResponse{" + "location=" + location + ", accuracy=" + accuracy + ", " +
+                "fallback='" + fallback + '\'' + '}';
     }
 }
