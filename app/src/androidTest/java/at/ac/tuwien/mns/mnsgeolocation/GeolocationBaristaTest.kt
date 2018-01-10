@@ -17,11 +17,11 @@ import org.junit.runner.RunWith
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import android.support.test.InstrumentationRegistry
-import android.support.test.espresso.Espresso.onView
-import android.support.test.espresso.assertion.ViewAssertions
-import android.support.test.espresso.matcher.ViewMatchers.withId
+import com.schibsted.spain.barista.assertion.BaristaVisibilityAssertions.assertNotContains
 import com.schibsted.spain.barista.interaction.BaristaListInteractions.scrollListToPosition
 import com.schibsted.spain.barista.interaction.BaristaMenuClickInteractions.clickMenu
+import com.schibsted.spain.barista.interaction.BaristaSleepInteractions.sleep
+import java.util.Date
 
 
 /**
@@ -37,8 +37,9 @@ class GeolocationBaristaTest {
     var baristaRule = BaristaRule.create(MeasurementActivity::class.java)
 
     @SuppressLint("SimpleDateFormat")
-    private val dateFormat = SimpleDateFormat("MM/dd/yyyy HH:mm:ss")
-    private val decimalFormat = DecimalFormat("#.##")
+    private val DECIMAL_FORMAT = DecimalFormat("#.##")
+    private val DATE_FORMAT = SimpleDateFormat("MM/dd/yyyy HH:mm:ss")
+    private val POSITION_LIST_ITEM = 2
 
     @Before
     fun setUp() {
@@ -50,54 +51,70 @@ class GeolocationBaristaTest {
 
     @Test
     fun makeMeasurementTest() {
-        //TODO assert correct information after measurement mock
-        val today = dateFormat.format(SetupTestRunner.DATE)
-        val distance = decimalFormat.format(DistanceUtils.haversineDistance(SetupTestRunner.LAT_1, SetupTestRunner.LON_1, SetupTestRunner.LAT_2, SetupTestRunner.LON_2))
+        val dateFormat = SimpleDateFormat("MM/dd/yyyy HH")
+        val now = Date()
+        val date = dateFormat.format(now)
+        val distance = DECIMAL_FORMAT.format(DistanceUtils.haversineDistance(SetupTestRunner.LAT_1, SetupTestRunner.LON_1, SetupTestRunner.NEW_LAT, SetupTestRunner.NEW_LON))
+        val accuracy = DECIMAL_FORMAT.format(SetupTestRunner.ACCURACY)
 
         clickOn(R.id.fab)
-
-        //assertContains(today)
-        //assertContains(distance)
-        assertContains(getResourceString(R.string.mls))
-        //assertContains(SetupTestRunner.LAT_2.toString())
-        //assertContains(SetupTestRunner.LON_2.toString())
-        assertContains(getResourceString(R.string.gps))
-        //assertContains(SetupTestRunner.LAT_1.toString())
-        //assertContains(SetupTestRunner.LON_1.toString())
-    }
-
-    @Test
-    fun showMeasurementListTest() {
-        onView(withId(R.id.listView)).check(ViewAssertions.matches(Matchers.withListSize(SetupTestRunner.MEASUREMENT_LIST_SIZE)))
-        
-        scrollListToPosition(R.id.listView, SetupTestRunner.MEASUREMENT_LIST_SIZE-1)
-    }
-
-    @Test
-    fun openMeasurementDetailsTest() {
-        val date = dateFormat.format(SetupTestRunner.DATE)
-        val distance = decimalFormat.format(DistanceUtils.haversineDistance(SetupTestRunner.LAT_1, SetupTestRunner.LON_1, SetupTestRunner.LAT_2, SetupTestRunner.LON_2))
-
-        clickListItem(R.id.listView, 0)
 
         assertContains(date)
         assertContains(distance)
         assertContains(getResourceString(R.string.mls))
-        assertContains(SetupTestRunner.LAT_2.toString())
-        assertContains(SetupTestRunner.LON_2.toString())
+        assertContains(SetupTestRunner.NEW_LAT.toString())
+        assertContains(SetupTestRunner.NEW_LON.toString())
         assertContains(getResourceString(R.string.gps))
         assertContains(SetupTestRunner.LAT_1.toString())
         assertContains(SetupTestRunner.LON_1.toString())
+        assertContains(accuracy)
+    }
+
+    @Test
+    fun showMeasurementListTest() {
+
+        for (m in SetupTestRunner.MEASUREMENT_LIST) {
+            scrollListToPosition(R.id.listView, SetupTestRunner.MEASUREMENT_LIST.indexOf(m))
+            assertContains(DATE_FORMAT.format(m.timestamp))
+        }
+    }
+
+    @Test
+    fun openMeasurementDetailsTest() {
+        val measurement = SetupTestRunner.MEASUREMENT_LIST[POSITION_LIST_ITEM]
+        val date = DATE_FORMAT.format(measurement.timestamp)
+        val mlsLat = measurement.mlsResponse.location.lat
+        val mlsLon = measurement.mlsResponse.location.lng
+        val gpsLat = measurement.gpsLocation.lat
+        val gpsLon = measurement.gpsLocation.lng
+        val distance = DECIMAL_FORMAT.format(DistanceUtils.haversineDistance(mlsLat, mlsLon, gpsLat, gpsLon))
+        val accuracy = DECIMAL_FORMAT.format(SetupTestRunner.ACCURACY)
+
+        clickListItem(R.id.listView, POSITION_LIST_ITEM)
+
+        assertContains(date)
+        assertContains(distance)
+        assertContains(getResourceString(R.string.mls))
+        assertContains(mlsLat.toString())
+        assertContains(mlsLon.toString())
+        assertContains(getResourceString(R.string.gps))
+        assertContains(gpsLat.toString())
+        assertContains(gpsLon.toString())
+        assertContains(accuracy)
     }
 
     @Test
     fun deleteMeasurementTest() {
-        onView(withId(R.id.listView)).check(ViewAssertions.matches(Matchers.withListSize(SetupTestRunner.MEASUREMENT_LIST_SIZE)))
+        val measurement = SetupTestRunner.MEASUREMENT_LIST[POSITION_LIST_ITEM]
+        val date = DATE_FORMAT.format(measurement.timestamp)
 
-        clickListItem(R.id.listView, 0)
+        assertContains(date)
+
+        clickListItem(R.id.listView, POSITION_LIST_ITEM)
+        assertContains(date)
+
         clickMenu(R.id.action_delete)
-
-        onView(withId(R.id.listView)).check(ViewAssertions.matches(Matchers.withListSize(SetupTestRunner.MEASUREMENT_LIST_SIZE-1)))
+        assertNotContains(date)
     }
 
     private fun getResourceString(id: Int): String {

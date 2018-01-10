@@ -62,7 +62,7 @@ class MLSScannerService : IntentService("MLSScannerService") {
     private fun scanForWifiAccessPoints(): List<WifiAccessPoint>? {
         val wifiManager = (application as Application).managerUtil.getWifiManager()
         val wifiGranted = PermissionUtil.wifiPermissionGranted(this)
-        if (!PermissionUtil.wifiEnabled(this)) {
+        if (!PermissionUtil.wifiEnabled((application as Application))) {
             return null
         }
         if (wifiGranted) {

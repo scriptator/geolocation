@@ -5,10 +5,8 @@ import android.content.Context;
 import android.location.LocationManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnitRunner;
 import android.telephony.CellInfo;
-import android.telephony.CellInfoWcdma;
 import android.telephony.TelephonyManager;
 
 import org.greenrobot.greendao.query.Query;
@@ -17,6 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,7 +33,9 @@ import at.ac.tuwien.mns.mnsgeolocation.service.MLSLocationService;
 import at.ac.tuwien.mns.mnsgeolocation.service.ServiceFactory;
 import at.ac.tuwien.mns.mnsgeolocation.util.DbUtil;
 import at.ac.tuwien.mns.mnsgeolocation.util.ManagerUtil;
+import io.reactivex.Observable;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -46,6 +48,8 @@ public class SetupTestRunner extends AndroidJUnitRunner {
     public static final double LON_1 = 16.363449;
     public static final double LAT_2 = 48.110033;
     public static final double LON_2 = 16.263449;
+    public static final double NEW_LAT = 48.211231;
+    public static final double NEW_LON = 16.363569;
     public static final float ACCURACY = 64;
     public static final long DATE = 1515539026742L;
     public static final List<Measurement> MEASUREMENT_LIST;
@@ -66,12 +70,10 @@ public class SetupTestRunner extends AndroidJUnitRunner {
         }
         MEASUREMENT_LIST = Collections.unmodifiableList(modifiableList);
 
-        List<CellInfo> modifiableCIList = new ArrayList<>();
-        // todo somehow create cellinfowcdma objects? reflection? magic?
-        MOCKED_CELL_INFO_LIST = Collections.unmodifiableList(modifiableCIList);
+        MOCKED_CELL_INFO_LIST = Collections.unmodifiableList(new ArrayList<CellInfo>());
 
         List<ScanResult> modifiableSCList = new ArrayList<>();
-        // todo somehow create scanresult objects? reflection? magic?
+        modifiableSCList.add(createScanResult());
         MOCKED_WIFI_SCAN_RESULT = Collections.unmodifiableList(modifiableSCList);
     }
 
@@ -97,11 +99,13 @@ public class SetupTestRunner extends AndroidJUnitRunner {
         MockitoAnnotations.initMocks(this);
 
         when(telephonyManager.getAllCellInfo()).thenReturn(MOCKED_CELL_INFO_LIST);
-        when(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)).thenReturn
-                (GPS_LOCATION);
+        when(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER))
+                .thenReturn(GPS_LOCATION);
         when(wifiManager.isWifiEnabled()).thenReturn(true);
         when(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)).thenReturn(true);
         when(wifiManager.getScanResults()).thenReturn(MOCKED_WIFI_SCAN_RESULT);
+        when(mlsLocationService.geolocate(any(GeolocationRequestParams.class),any(String.class)))
+                .thenReturn(Observable.just(createMockResponse(NEW_LAT, NEW_LON, ACCURACY)));
 
         when(daoSession.getMeasurementDao()).thenReturn(measurementDao);
         when(measurementDao.queryBuilder()).thenReturn(measurementQueryBuilder);
@@ -184,5 +188,33 @@ public class SetupTestRunner extends AndroidJUnitRunner {
         response.setLocation(new Location(createMockLocation(lat, lon)));
         response.setAccuracy(accuracy);
         return response;
+    }
+
+
+    private static ScanResult createScanResult() {
+        Constructor<ScanResult> scConstructor = null;
+        ScanResult sr = null;
+
+        try {
+            scConstructor = ScanResult.class.getDeclaredConstructor(null);
+            scConstructor.setAccessible(true);
+            sr = scConstructor.newInstance(null);
+
+            sr.SSID = "test";
+            sr.BSSID = "24:1f:a0:e8:3c:48";
+            sr.level = 70;
+            sr.frequency=2462;
+
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
+        return sr;
     }
 }

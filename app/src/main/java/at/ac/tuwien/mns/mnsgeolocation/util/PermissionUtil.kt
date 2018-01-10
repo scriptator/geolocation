@@ -2,6 +2,7 @@ package at.ac.tuwien.mns.mnsgeolocation.util
 
 import android.Manifest
 import android.app.Activity
+import at.ac.tuwien.mns.mnsgeolocation.Application
 import android.content.Context
 import android.location.LocationManager
 import android.net.wifi.WifiManager
@@ -24,13 +25,13 @@ class PermissionUtil {
             return permissionGranted(context, Manifest.permission.ACCESS_WIFI_STATE)
         }
 
-        fun gpsEnabled(context: Context): Boolean {
-            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        fun gpsEnabled(application: Application): Boolean {
+            val locationManager = application.managerUtil.getLocationManager()
             return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         }
 
-        fun wifiEnabled(context: Context): Boolean {
-            val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        fun wifiEnabled(application: Application): Boolean {
+            val wifiManager = application.managerUtil.getWifiManager()
             return wifiManager.isWifiEnabled
         }
 

@@ -34,7 +34,7 @@ class GPSLocationService : Service() {
     private val gpsStarter = Runnable {
         val locationManager = (application as Application).managerUtil.getLocationManager()
         val listener = GPSLocationListener()
-        if (!PermissionUtil.gpsEnabled(this)) {
+        if (!PermissionUtil.gpsEnabled((application as Application))) {
             publishErr(GPS_DISABLED)
             return@Runnable
         }
