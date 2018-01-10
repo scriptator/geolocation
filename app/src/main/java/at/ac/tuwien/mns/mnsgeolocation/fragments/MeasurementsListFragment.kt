@@ -1,5 +1,6 @@
 package at.ac.tuwien.mns.mnsgeolocation.fragments
 
+import android.Manifest
 import android.app.Fragment
 import android.content.*
 import android.os.Bundle
@@ -21,7 +22,6 @@ import at.ac.tuwien.mns.mnsgeolocation.dto.Measurement
 import at.ac.tuwien.mns.mnsgeolocation.dto.MeasurementDao
 import at.ac.tuwien.mns.mnsgeolocation.service.MLSLocationService
 import at.ac.tuwien.mns.mnsgeolocation.service.ManagerService
-import at.ac.tuwien.mns.mnsgeolocation.service.ServiceFactory
 import at.ac.tuwien.mns.mnsgeolocation.util.DisplayUtil
 import at.ac.tuwien.mns.mnsgeolocation.util.PermissionUtil
 import io.reactivex.Observable
@@ -69,7 +69,8 @@ class MeasurementsListFragment : Fragment(), AdapterView.OnItemClickListener {
                     showErr(intent)
                     endMeasurement()
                 }
-                ManagerService.NOTIFICATION_TYPE_PERM_FAILED.equals(type) -> PermissionUtil.requestRequiredPermissions(activity)
+                ManagerService.NOTIFICATION_TYPE_PERM_FAILED.equals(type) -> requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_WIFI_STATE),
+                        PermissionUtil.APP_PERMISSION_REQUEST_CODE)
             }
         }
 

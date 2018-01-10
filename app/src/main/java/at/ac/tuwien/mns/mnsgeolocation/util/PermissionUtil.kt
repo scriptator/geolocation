@@ -2,6 +2,7 @@ package at.ac.tuwien.mns.mnsgeolocation.util
 
 import android.Manifest
 import android.app.Activity
+import android.app.Fragment
 import at.ac.tuwien.mns.mnsgeolocation.Application
 import android.content.Context
 import android.location.LocationManager
@@ -15,7 +16,7 @@ import android.support.v4.content.PermissionChecker
  */
 class PermissionUtil {
     companion object {
-        private val APP_PERMISSION_REQUEST_CODE = 1
+        val APP_PERMISSION_REQUEST_CODE = 1
 
         fun locationPermissionGranted(context: Context): Boolean {
             return permissionGranted(context, Manifest.permission.ACCESS_FINE_LOCATION)
