@@ -53,7 +53,7 @@ class MeasurementsListFragment : Fragment(), AdapterView.OnItemClickListener {
     private val listItems: ArrayList<Measurement> = ArrayList()
     private var listAdapter: MeasurementListAdapter? = null
 
-    private var mlsLocationService: MLSLocationService = ServiceFactory.getMlsLocationService()
+    private var mlsLocationService: MLSLocationService? = null
 
     private var mCallback: OnMeasurementSelectedListener? = null
 
@@ -85,6 +85,7 @@ class MeasurementsListFragment : Fragment(), AdapterView.OnItemClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mlsLocationService = (activity.application as Application).serviceFactory.mlsLocationService
         managerServiceIntent = Intent(activity, ManagerService::class.java)
 
         startManagerService()
@@ -152,7 +153,7 @@ class MeasurementsListFragment : Fragment(), AdapterView.OnItemClickListener {
         activity.stopService(managerServiceIntent)
     }
 
-    fun removeItem(measurement: Measurement?) : Boolean {
+    fun removeItem(measurement: Measurement?): Boolean {
         val daoSession = (activity.application as Application).daoSession
         if (daoSession != null) {
             measurementDao = daoSession.measurementDao
@@ -233,12 +234,7 @@ class MeasurementsListFragment : Fragment(), AdapterView.OnItemClickListener {
             // use the last known GPS location for the measurement
             m.gpsLocation = lastGPSLocation
 
-//            try {
-                // insert it into the database
-                m.id = this.measurementDao?.insert(m)
-//            } catch (e : SQLiteException) {
-//                println(e.message)
-//            }
+            m.id = this.measurementDao?.insert(m)
 
             listItems.add(m)
             if (listAdapter != null) {
@@ -267,10 +263,13 @@ class MeasurementsListFragment : Fragment(), AdapterView.OnItemClickListener {
 
         // TODO secure API key
         Log.d(LOG_TAG, "Starting MLS geolocation request")
-        mlsLocationService.geolocate(mlsRequest, "b4e52805e5534deb9d5cdb7df1000f36")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ response ->
+        if (mlsLocationService == null) {
+            mlsLocationService = (activity.application as Application).serviceFactory.mlsLocationService
+        }
+        mlsLocationService?.geolocate(mlsRequest, "b4e52805e5534deb9d5cdb7df1000f36")
+                ?.subscribeOn(Schedulers.io())
+                ?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribe({ response ->
                     run {
                         if (response.fallback == "ipf") {
                             showToast("WIFI and Cell Towers not known, fallback to GeoIP", Toast.LENGTH_LONG)

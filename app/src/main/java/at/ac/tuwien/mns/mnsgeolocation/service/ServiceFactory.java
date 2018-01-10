@@ -10,16 +10,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ServiceFactory {
 
-    private static MLSLocationService mlsLocationService;
+    private MLSLocationService mlsLocationService;
 
     @NotNull
-    public static MLSLocationService getMlsLocationService() {
+    public MLSLocationService getMlsLocationService() {
         if (mlsLocationService == null) {
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("https://location.services.mozilla.com/v1/")
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                    .build();
+            Retrofit retrofit = new Retrofit.Builder().baseUrl("https://location.services" +
+                    ".mozilla" + ".com/v1/").addConverterFactory(GsonConverterFactory.create())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create()).build();
             mlsLocationService = retrofit.create(MLSLocationService.class);
         }
         return mlsLocationService;

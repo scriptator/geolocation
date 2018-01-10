@@ -29,6 +29,8 @@ import at.ac.tuwien.mns.mnsgeolocation.dto.Location;
 import at.ac.tuwien.mns.mnsgeolocation.dto.Measurement;
 import at.ac.tuwien.mns.mnsgeolocation.dto.MeasurementDao;
 import at.ac.tuwien.mns.mnsgeolocation.dto.WifiAccessPoint;
+import at.ac.tuwien.mns.mnsgeolocation.service.MLSLocationService;
+import at.ac.tuwien.mns.mnsgeolocation.service.ServiceFactory;
 import at.ac.tuwien.mns.mnsgeolocation.util.DbUtil;
 import at.ac.tuwien.mns.mnsgeolocation.util.ManagerUtil;
 
@@ -87,6 +89,8 @@ public class SetupTestRunner extends AndroidJUnitRunner {
     private WifiManager wifiManager;
     @Mock
     private LocationManager locationManager;
+    @Mock
+    private MLSLocationService mlsLocationService;
 
     @Override
     public void callApplicationOnCreate(Application app) {
@@ -136,6 +140,13 @@ public class SetupTestRunner extends AndroidJUnitRunner {
                 @Override
                 public LocationManager getLocationManager() {
                     return locationManager;
+                }
+            });
+            mApp.setServiceFactory(new ServiceFactory() {
+                @NotNull
+                @Override
+                public MLSLocationService getMlsLocationService() {
+                    return mlsLocationService;
                 }
             });
         }
